@@ -56,7 +56,7 @@ const DoctorHeader = () => {
                 <NavLink to="/contact-us" className="text-black hover:text-blue-500 transition-colors duration-300">Contact Us</NavLink>
                 {isAuthenticated && (
                     <>
-                        <NavLink to="/doctor/profile" className="text-black hover:text-blue-500 transition-colors duration-300">Profile</NavLink>
+                        <NavLink to="/doctor/profile/" className="text-black hover:text-blue-500 transition-colors duration-300">Profile</NavLink>
                         <button onClick={handleLogOut} className="text-black hover:text-blue-500 transition-colors duration-300">Logout</button>
                     </>
                 )}

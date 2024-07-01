@@ -81,8 +81,9 @@ const DoctorLogin = () => {
             name="password" // Add name attribute
             required
           />
-          <div className="text-xs text-black-700 hover:text-black-900 text-end w-full mt-2">
-            Forget Password?
+          <div>
+            {/* Your existing login form */}
+            <Link to="auth/forgotpassword">Forgot Password?</Link>
           </div>
         </div>
         <div className="mt-8">

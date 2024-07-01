@@ -61,10 +61,13 @@ const UserRegister = () => {
 
       try {
         const response = await axios.post(BASE_URL + 'auth/signup/', userData);
-        toast.success('OTP has been sent to your email, please check');
-        navigate("/auth/verifyotp", {
-          state: { email: userData.email, user_type: userData.user_type },
-        });
+        toast.success('Registration successful');
+        setTimeout(() => {
+          toast.success('OTP has been sent to your email, please check');
+          navigate("/auth/verifyotp", {
+            state: { email: userData.email, user_type: userData.user_type },
+          });
+        }, 4000); 
       } catch (error) {
         console.log(error);
         if (error.response && error.response.data) {

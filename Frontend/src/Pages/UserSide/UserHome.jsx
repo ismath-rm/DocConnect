@@ -4,6 +4,7 @@ import BannerSection from '../../Components/Banner/User/BannerSection'
 import Appointment from '../../Components/userside/Element/Appointment'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import HowItWorksSection from '../../Components/userside/Element/HowItWorksSection'
 
 const UserHome = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const UserHome = () => {
     <div>
       <BannerSection/>
       <Appointment/>
+      <HowItWorksSection/>
       <FAQSection/>
     </div>
   )

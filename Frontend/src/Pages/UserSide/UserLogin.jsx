@@ -77,7 +77,7 @@ const UserLogin = () => {
           />
           <div>
             {/* Your existing login form */}
-            <Link to="auth/forgot_password">Forgot Password?</Link>
+            <Link className="span" to="/auth/forgotpassword" >Forgot Password?</Link>
           </div>
         </div>
         <div className="mt-8">

@@ -5,9 +5,9 @@ import { BASE_URL } from "./constants/Constants";
 
 const updateDocToken = async () => {
   const refreshToken = Cookies.get("refresh");
-
+  console.log('njn evide i');
   try {
-    const res = await axios.post(baseUrl + "auth/token/refresh", {
+    const res = await axios.post(BASE_URL + "auth/token/refresh", {
       refresh: refreshToken,
     });
 
@@ -19,6 +19,7 @@ const updateDocToken = async () => {
       return false;
     }
   } catch (error) {
+    console.log(error);
     return false;
   }
 };
@@ -58,6 +59,7 @@ const isAuthDoctor = async () => {
   let decoded = jwtDecode(accessToken);
 
   if (decoded.exp > currentTime) {
+    console.log('ismath is a fool');
     let checkDoc = await fetchisDoctor();
     return {
       name: decoded.first_name,

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { set_Authentication } from '../../Redux/authentication/authenticationSlice'
 import isAuthDoctor from '../../utils/isAuthDoctor'
 import DoctorPrivateRoute from '../../Components/private/DoctorPrivateRoute'
+import DoctorProfile from '../../Pages/Doctor/DoctorProfile'
 
 const DoctorWrapper = () => {
   const dispatch = useDispatch();
@@ -44,7 +45,8 @@ const DoctorWrapper = () => {
         </>
       ),
       children:[
-        {path:'/doctorHome',element: <DoctorHome/>}
+        { path: '/doctorHome', element: <DoctorHome /> },
+        { path: "/profile/", element: <DoctorProfile /> },
       ]
     }
   ]);

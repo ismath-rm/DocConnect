@@ -70,11 +70,11 @@ function VerifyOtp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen ">
       <form className="bg-white p-6 rounded shadow-md w-full max-w-sm" onSubmit={handleVerification}>
         <h2 className="text-2xl font-bold mb-2 text-center">OTP Verification</h2>
         <p className="mb-4 text-center">We have sent a verification code to your email.</p>
-        <div className="flex justify-center mb-4 space-x-2">
+        <div className="flex justify-center mb-4 space-x-2 text-black">
           {Array.from({ length: 4 }, (_, index) => (
             <input
               key={index}

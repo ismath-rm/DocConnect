@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+import os
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -139,6 +140,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'account.User'
 
+# CORS_ORIGIN_ALLOW_ALL = True
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
+
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media/')
+MEDIA_URL = '/media/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -177,7 +184,7 @@ SIMPLE_JWT = {
     "JTI_CLAIM": "jti",
 
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_LIFETIME": timedelta(seconds=10),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 
     # "TOKEN_OBTAIN_SERIALIZER": "account.api.serializers.MyTokenObtainPairSerializer",
@@ -195,3 +202,5 @@ EMAIL_PORT = '587'
 EMAIL_HOST_USER = 'ismathrm9@gmail.com'
 EMAIL_HOST_PASSWORD = 'wtws tunn clxg lyhl'
 EMAIL_USE_TLS = True
+
+FRONTEND_URL = 'http://localhost:5173'

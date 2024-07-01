@@ -1,9 +1,10 @@
 from django.views import View
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, generics
 from django.http import JsonResponse
 from rest_framework.response import Response
 from .serializers import  *
+# from .email import *
 import random
 from account.models import *
 from datetime import datetime
@@ -13,9 +14,16 @@ from rest_framework.exceptions import AuthenticationFailed, ParseError
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from rest_framework.permissions import AllowAny
+from django.utils.encoding import force_bytes, force_str
 
-
-
+from django.conf import settings
+from django.template.loader import render_to_string
 
 class RegisterView(APIView):
     def post(self, request):
@@ -159,7 +167,61 @@ class UserLogin(APIView):
         }
         print(content)
         return Response(content, status=status.HTTP_200_OK)
-    
+
+
+
+
+class ForgotPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        reset_url = f"{settings.FRONTEND_URL}/auth/resetpassword/{uid}/{token}/"
+
+        # Construct email message directly
+        subject = "Reset your password"
+        message = f"Hello {user.username},\n\nPlease click the following link to reset your password:\n{reset_url}"
+
+        # Send reset password email
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+        return Response({"detail": "Password reset link has been sent to your email."}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            serializer = ResetPasswordSerializer(data=request.data)
+            if serializer.is_valid():
+                print(serializer.data)
+                user.set_password(request.data['password'])
+                user.save()
+                return Response({"detail": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"detail": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -180,16 +242,54 @@ class LogoutView(APIView):
 
 class UserDetails(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        user = User.objects.get(id=request.user.id)
-       
-        data = UserSerializer(user).data
-        try :
-            profile_pic = user.profile_picture
-            data['profile_pic'] = request.build_absolute_uri('/')[:-1]+profile_pic.url
-        except:
-            profile_pic = ''
-            data['profile_pic']=''
-            
-        content = data
-        return Response(content,status=status.HTTP_200_OK)
+        user = get_object_or_404(User, id=request.user.id)
+        serializer = UserSerializer(user)
+        data = serializer.data
+
+        # Append profile picture URL if available
+        if user.profile_picture:
+            data['profile_pic'] = request.build_absolute_uri('/')[:-1] + user.profile_picture.url
+        else:
+            data['profile_pic'] = None
+        
+        return Response(data, status=status.HTTP_200_OK)
+    
+
+    
+    
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class AdminDocUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Doctor.objects.all()
+    # permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = AdminDocUpdateSerializer
+    lookup_field = 'user__id'
+
+    
+
+class VarificationDoctorView(generics.RetrieveUpdateAPIView):
+    serializer_class = VerificationSerializer
+    lookup_field = 'user__id'
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user__id')
+        user_verification = get_object_or_404(Verification, user__id=user_id)
+        return Verification.objects.filter(user=user_verification.user)
