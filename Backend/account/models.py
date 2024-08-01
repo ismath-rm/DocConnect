@@ -74,7 +74,10 @@ class User(AbstractBaseUser):
         ('O-', 'O-'),
         ('AB+', 'AB+'),
         ('AB-', 'AB-'),
+
     ]
+
+
 
     uid = models.UUIDField(unique=True, default=uuid.uuid4)
     username = models.CharField(max_length=50, blank=True)
@@ -84,7 +87,6 @@ class User(AbstractBaseUser):
     gender = models.CharField(max_length=10, choices=gender_type_choices, default='male')
     phone_number = models.CharField(max_length=12, blank=True, null=True)
     email = models.EmailField(max_length=100, unique=True)
-    blood_group = models.CharField(max_length=5, choices=blood_group, default='A+') 
     date_of_birth = models.DateField(null=True, blank=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='Patient')
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
@@ -101,6 +103,12 @@ class User(AbstractBaseUser):
     is_email_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    blood_group = models.CharField(max_length=5, choices=blood_group, default='A+')
+    custom_id = models.CharField(max_length=10, unique=True, editable=False, blank=True, null=True)
+    
+
+
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone_number', 'first_name']
@@ -119,20 +127,24 @@ class User(AbstractBaseUser):
     def is_doctor(self):
         return self.user_type == 'doctor'
     
+    
+    def save(self, *args, **kwargs):
+        if not self.custom_id:
+            if self.user_type == 'patient':
+                last_patient = User.objects.filter(user_type='patient').order_by('-custom_id').first()
+                if last_patient and last_patient.custom_id:
+                    self.custom_id = f'P{max(5000, int(last_patient.custom_id[1:]) + 1)}'
+                else:
+                    self.custom_id = 'P5000'
+        super().save(*args, **kwargs)
+        
 
+class Wallet(models.Model):
+    patient = models.OneToOneField(User, on_delete=models.CASCADE,related_name='wallet_user', primary_key=True)
+    balance = models.IntegerField(default=0)
 
-
-@receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        # Check user_type and create the corresponding profile instance
-        if instance.is_doctor():
-            Doctor.objects.create(user=instance)  # You can customize as needed
-            Verification.objects.create(user=instance)
-
-# Connect the signal receiver function
-post_save.connect(create_profile, sender=User)
-
+    def __str__(self):
+        return str(self.patient) 
 
 
 class Doctor(models.Model):
@@ -156,13 +168,27 @@ class Doctor(models.Model):
         ('Radiologist', 'Radiologist'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='doctor_user')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_user')
     specializations = models.CharField(max_length=30, choices=SPECIALIZATION_CHOICES, default='General')
-    education = models.TextField(max_length=50,blank=True, null=True)
+    education = models.TextField(max_length=50, blank=True, null=True)
     years_of_experience = models.IntegerField(default=0)
     about_me = models.CharField(max_length=255, blank=True, null=True)
-    Hospital=models.TextField(max_length=50, blank=True, null=True)
-    consultaion_fees = models.DecimalField(max_digits=10, decimal_places=0, default=300)
+    hospital = models.TextField(max_length=50, blank=True, null=True)
+    consultation_fees = models.DecimalField(max_digits=10, decimal_places=0, default=300)
+    custom_id = models.CharField(max_length=10, unique=True, editable=False, blank=True, null=True)
+
+
+    def save(self, *args, **kwargs):
+        if not self.custom_id:
+            last_doctor = Doctor.objects.order_by('-custom_id').first()
+            if last_doctor and last_doctor.custom_id:
+                self.custom_id = f'D{max(5000, int(last_doctor.custom_id[1:]) + 1)}'
+            else:
+                self.custom_id = 'D5000'
+        super().save(*args, **kwargs)
+
+    
+
 
 
 class Verification(models.Model):
@@ -175,6 +201,26 @@ class Verification(models.Model):
     def __str__(self):
         return f"Verification for {self.user.first_name}"
 
+
+
+
+    
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        # Check user_type and create the corresponding profile instance
+        if instance.is_doctor():
+            print('haiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+            Doctor.objects.create(user=instance)  
+            Verification.objects.create(user=instance) 
+         
+            
+
+# Connect the signal receiver function
+post_save.connect(create_profile, sender=User)
+
+
+    
 
 
 class OTPModel(models.Model):

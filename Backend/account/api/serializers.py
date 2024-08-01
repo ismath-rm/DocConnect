@@ -23,9 +23,10 @@ class UserSerializer(serializers.ModelSerializer):
         return None
     
 class DOCUserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        exclude = ('password', 'id' ,'is_staff','is_superuser','user_type','email','profile_picture')    
+        exclude = ('password', 'id' ,'is_staff','is_superuser','user_type','email') 
 
 
 # class Accountserializer(serializers.ModelSerializer):
@@ -43,6 +44,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return super(UserRegisterSerializer, self).create(validated_data)
 
 
+
 class ResetPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
@@ -56,16 +58,22 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = [
-            'id', 'email','username', 'first_name', 'last_name', 'phone_number', 'blood_group', 'date_of_birth', 
-            'gender', 'profile_picture', 'street', 'city', 'state', 'zip_code', 'country'
+            'id', 'email', 'username', 'first_name', 'last_name', 'phone_number', 'date_of_birth', 
+            'gender', 'profile_picture', 'street', 'city', 'state', 'zip_code', 'country', 'blood_group',
         ]
+        
         extra_kwargs = {
             'email': {'read_only': True},
         }
-
+   
+class UpdateAdminDocSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 class AdminDocUpdateSerializer(serializers.ModelSerializer):
@@ -75,10 +83,14 @@ class AdminDocUpdateSerializer(serializers.ModelSerializer):
         fields='__all__' 
         
     def update(self, instance, validated_data):
+        print("validated_data:",validated_data)
         user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
-        user_serializer = UserSerializer(instance.user, data=user_data, partial=True)
+        user_serializer = DOCUserSerializer(instance.user, data=user_data, partial=True)
         if user_serializer.is_valid():
             user_serializer.save()
+        else:
+            print("heloooo abhijithhhhhh")
+            print(user_serializer.errors)
         return super().update(instance, validated_data)
 
 
@@ -88,3 +100,118 @@ class VerificationSerializer(serializers.ModelSerializer):
         model = Verification
         fields = '__all__' 
     
+
+# class AdminPatientUpdateSerializer(serializers.ModelSerializer):
+#     # user=DOCUserSerializer()
+#     class Meta:
+#         model = User
+#         fields='__all__'
+
+#     # def update(self, instance, validated_data):
+#     #     user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
+#     #     user_serializer = UserSerializer(instance.User, data=user_data, partial=True)
+#     #     if user_serializer.is_valid():
+#     #         user_serializer.save()
+#     #     return super().update(instance, validated_data)
+
+#     def update(self, instance, validated_data):
+#         for attr, value in validated_data.items():
+#             setattr(instance, attr, value)
+#         instance.save()
+#         return instance
+    
+class AdminPatientUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "gender",
+            "phone_number",
+            "date_of_birth",
+            "street",
+            "city",
+            "state",
+            "zip_code",
+            "country",
+            "is_id_verified",
+            "is_email_verified",
+            "is_active",
+            "blood_group",
+        ]
+
+    def update(self, instance, validated_data):
+        print("Updating the following fields:", validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance    
+
+class PatientUserSerializer(serializers.ModelSerializer):
+    
+
+    class Meta:
+        model = User
+        exclude = ('password','is_id_verified', 'is_email_verified', 'is_staff', 'is_superuser', 'user_type')
+
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = '__all__'
+
+
+
+class UserDetailsUpdateSerializer(serializers.ModelSerializer):
+    doctor_user=DoctorSerializer(read_only=True)
+    class Meta:
+        model = User
+        exclude = ('password','is_id_verified','is_email_verified','is_staff','is_superuser','user_type')
+
+
+class adminDocVerificationSerializer(serializers.ModelSerializer):
+    user=DOCUserSerializer()
+    class Meta:
+        model = Verification
+        fields='__all__'
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
+        user_serializer = UserSerializer(instance.user, data=user_data, partial=True)
+        if user_serializer.is_valid():
+            user_serializer.save()
+        return super().update(instance, validated_data)
+    
+class PatientCustomIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['custom_id']      
+
+
+class DoctorCustomIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['custom_id', 'id']     
+
+    
+class UserPatientCustomIDSerializer(serializers.ModelSerializer):
+    patient_user=PatientCustomIDSerializer(read_only=True)
+    class Meta:
+        model = User
+        fields = ['id','first_name','patient_user']   
+
+
+class UserDoctorCustomIDSerializer(serializers.ModelSerializer):
+    doctor_user=DoctorCustomIDSerializer(read_only=True)
+    class Meta:
+        model = User
+        fields = ['id','first_name','doctor_user']     
+ 
+
+
+# class WalletUpdateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Wallet
+#         exclude = ['patient']

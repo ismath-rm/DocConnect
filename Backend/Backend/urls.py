@@ -19,11 +19,19 @@ from django.urls import path,include
 from django.urls import re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from chat.consumers import ChatConsumer
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('auth/', include("account.api.urls")),
+    path('appointment/', include("booking.api.urls")),
+    path('chat/', include("chat.api.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+websocket_urlpatterns = [
+    path('ws/chat/<int:appointment_id>/', ChatConsumer.as_asgi()),
+]
