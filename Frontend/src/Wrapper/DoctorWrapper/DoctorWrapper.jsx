@@ -8,6 +8,7 @@ import { set_Authentication } from '../../Redux/authentication/authenticationSli
 import isAuthDoctor from '../../utils/isAuthDoctor'
 import DoctorPrivateRoute from '../../Components/private/DoctorPrivateRoute'
 import DoctorProfile from '../../Pages/Doctor/DoctorProfile'
+import DoctorChatComponent from "../../Components/Messages/DoctMessage";
 
 const DoctorWrapper = () => {
   const dispatch = useDispatch();
@@ -47,23 +48,12 @@ const DoctorWrapper = () => {
       children:[
         { path: '/doctorHome', element: <DoctorHome /> },
         { path: "/profile/", element: <DoctorProfile /> },
+        { path: "/chat", element: <DoctorChatComponent /> },
       ]
     }
   ]);
 
   return routes;
-
-
-  // return (
-  //   <div>
-  //     <DoctorHeader/>
-  //     <Routes>
-  //       <Route path="/doctorHome" element={<DoctorHome/>} />
-  //     </Routes>
-  //     <DoctorFooter/>
-      
-  //   </div>
-  // )
 }
 
 export default DoctorWrapper

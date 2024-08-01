@@ -54,7 +54,7 @@ const DoctorLogin = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-5 sm:px-0">
-      <form className="form" method="POST" onSubmit={handleLogSubmit}> {/* Add onSubmit */}
+      <form className="form" method="POST" onSubmit={handleLogSubmit}> 
         <p className="text-3xl text-blue-600 font-bold text-center">Doctor Login</p>
         <div className="mt-4">
           <label className="text-left block text-gray-700 text-sm font-bold mb-2">
@@ -64,7 +64,7 @@ const DoctorLogin = () => {
             className="text-gray-700 border border-gray-300 rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700"
             type="email"
             id="email"
-            name="email" // Add name attribute
+            name="email" 
             required
           />
         </div>
@@ -78,12 +78,12 @@ const DoctorLogin = () => {
             className="text-black-700 border border-gray-300 rounded py-2 px-4 block w-full focus:outline-2 focus:outline-blue-700"
             type="password"
             id="password"
-            name="password" // Add name attribute
+            name="password" 
             required
           />
           <div>
             {/* Your existing login form */}
-            <Link to="auth/forgotpassword">Forgot Password?</Link>
+            <Link className="span" to="/auth/forgotpassword" >Forgot Password?</Link>
           </div>
         </div>
         <div className="mt-8">

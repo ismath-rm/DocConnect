@@ -8,6 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import IsAuthUser from '../../utils/IsAuthUser';
 import { set_Authentication } from '../../Redux/authentication/authenticationSlice';
 import UserProfile from '../../Pages/UserSide/UserProfile';
+import DoctorSearch from '../../Pages/UserSide/DoctorSearch';
+import DocProfile from '../../Pages/UserSide/DocProfile';
+import PaymentSucess from '../../Pages/UserSide/PaymentSucess';
+import PatientChatComponent from '../../Components/Messages/PatientMessage';
 
 const UserWrapper = () => {
   const dispatch = useDispatch();
@@ -56,7 +60,11 @@ const UserWrapper = () => {
       </>
     ),
     children:[
-      {path: '/profile',element:<UserProfile/>}
+      { path: '/profile', element: <UserProfile /> },
+      { path: '/doctor-list', element: <DoctorSearch /> },
+      {path: "/doctor-profile/:id", element: <DocProfile/>},
+      {path: "/sucess-page", element: <PaymentSucess/>},
+      {path: "/user-chat", element: <PatientChatComponent/>},
     ]
   }
 ])

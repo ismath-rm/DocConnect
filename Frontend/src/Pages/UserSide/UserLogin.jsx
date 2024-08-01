@@ -50,7 +50,7 @@ const UserLogin = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-5 sm:px-0 ">
-      <form className="form" method="POST" onSubmit={handleLoginSubmit}>
+      <form className="form"  method="POST" onSubmit={handleLoginSubmit}>
         <p className="text-3xl text-blue-600 font-bold text-center">Patient Login</p>
         <div className="mt-4">
           <label className="text-left block text-gray-700 text-sm font-bold mb-2">

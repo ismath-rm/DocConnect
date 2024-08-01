@@ -33,7 +33,7 @@ const ForgotPassword = () => {
   return (
     <div className="flex w-full h-screen">
       <div className="w-full flex items-center">
-        <div className="bg-blue-100 w-full md:w-96 p-8 md:rounded-l-lg shadow-2xl">
+        <div className="bg-white bg-opacity-75 backdrop-blur-md w-full md:w-96 p-8 md:rounded-l-lg shadow-2xl">
           <form className="flex flex-col w-full text-left" onSubmit={handleSubmit}>
             <p className="text-3xl text-blue-600 font-bold text-center">Forgot Password</p>
             <div className="mt-4"></div>
@@ -49,7 +49,7 @@ const ForgotPassword = () => {
             {formError && <p className="text-red-500 text-sm">{formError}</p>}
             <div className="mt-8">
               <button className="bg-blue-600 text-white font-bold py-2 px-4 w-full rounded hover:bg-blue-500">
-                Send Otp
+                Reset Password
               </button>
             </div>
           </form>

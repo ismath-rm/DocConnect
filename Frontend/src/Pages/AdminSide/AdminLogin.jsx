@@ -22,17 +22,23 @@ function AdminLogin() {
     try {
       const res = await axios.post(BASE_URL + "auth/login", Data);
       if (res.status === 200) {
-        Cookies.set("access", res.data.access);
-        Cookies.set("refresh", res.data.refresh);
-        dispatch(
-          set_Authentication({
-            name: jwtDecode(res.data.access).first_name,
-            isAuthenticated: true,
-            isAdmin: res.data.isAdmin,
-          })
-        );
-        toast.success("Login successful!");
-        navigate("/admincontrol");
+        const decodedToken = jwtDecode(res.data.access);
+        if (res.data.isAdmin) {
+          Cookies.set("access", res.data.access);
+          Cookies.set("refresh", res.data.refresh);
+          dispatch(
+            set_Authentication({
+              name: jwtDecode(res.data.access).first_name,
+              isAuthenticated: true,
+              isAdmin: res.data.isAdmin,
+            })
+          );
+          toast.success("Login successful!");
+          navigate("/admincontrol");
+        }else{
+          toast.error("Only admins can access this page.");
+        }
+        
         return res;
         
       }

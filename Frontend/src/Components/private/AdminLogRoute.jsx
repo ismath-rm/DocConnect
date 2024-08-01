@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import isAuthAdmin from '../../utils/isAuthAdmin';
-
-
+import { toast } from 'react-toastify';
+import Loader from '../loader/Loader';
 
 
 function AdminLogRoute({ children }) {
   
   const [isAuthenticated, setIsAuthenticated] = useState({
-    'is_authenticated' : true,
-    'is_admin' : true,
+    'is_authenticated': false,
+    'is_admin': false,
   });
+  const [isLoading, setLoading] = useState(true);
   
 
   useEffect(() => {
@@ -20,17 +21,22 @@ function AdminLogRoute({ children }) {
         'is_authenticated' : authInfo.isAuthenticated,
         'is_admin' : authInfo.isAdmin,
       });
+      setLoading(false);
       
     };
 
     fetchData();
   }, []);
 
+  if (isLoading) {
+    return <Loader />
+  }
+
   
-//   if(isAuthenticated.is_authenticated)
-//   {
-//     return <Navigate to="/admincontrol/" />;
-//   }
+  if (isAuthenticated.is_authenticated && isAuthenticated.is_admin) {
+
+    return <Navigate to="/admincontrol/" />;
+  }
 
   // If authenticated, render the child components
   return children;

@@ -8,11 +8,7 @@ import AppWidgetSummary from '../../Components/adminside/elements/app-widget-sum
 
 export default function Dashboard() {
   return (
-    <Container maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: 5 }}>
-     Hello, Welcome back 👋
-      </Typography>
-
+    <Container maxWidth="xl" sx={{ mt: 10 }}>
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary

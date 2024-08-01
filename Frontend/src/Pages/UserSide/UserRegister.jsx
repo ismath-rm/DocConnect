@@ -67,7 +67,7 @@ const UserRegister = () => {
           navigate("/auth/verifyotp", {
             state: { email: userData.email, user_type: userData.user_type },
           });
-        }, 4000); 
+        }, 1000); 
       } catch (error) {
         console.log(error);
         if (error.response && error.response.data) {

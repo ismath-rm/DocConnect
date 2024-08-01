@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
 import { set_Authentication } from '../../Redux/authentication/authenticationSlice';
+import { toast } from "react-toastify";
 
 const UserHeader = () => {
     const accessTocken = Cookies.get('access');
@@ -17,7 +18,7 @@ const UserHeader = () => {
     const dispatch = useDispatch();
 
     const authenticationUser = useSelector((state) => state.authentication_user);
-    const { isAuthenticated } = authenticationUser || {};
+    const { isAuthenticated,name } = authenticationUser || {};
 
     const handleLogOut = () => {
         Cookies.remove('access');
@@ -32,7 +33,7 @@ const UserHeader = () => {
                 user_id: null
             })
         );
-        
+        toast.success('Logged out successfully');
         navigate('/');
     };
 
@@ -72,6 +73,7 @@ const UserHeader = () => {
             <div className="flex space-x-5">
                 {isAuthenticated ? (
                     <>
+                        <NavLink to="/user-chat" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Messages</NavLink>
                         <NavLink to="/profile" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">My Profile</NavLink>
                         <button onClick={handleLogOut} className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Logout</button>
                     </>

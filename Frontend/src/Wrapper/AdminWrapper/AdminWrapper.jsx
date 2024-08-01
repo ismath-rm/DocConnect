@@ -1,12 +1,16 @@
 
 import React from "react";
-import AdminPrivateRoute from '../../Components/private/AdminPrivateRoute'
+import AdminPrivateRoute from '../../Components/private/AdminPrivateRoute';
 import AdminLogin from "../../Pages/AdminSide/AdminLogin";
 import { Outlet, useRoutes } from "react-router-dom";
 import '../../Styles/main.scss';
 import DashboardLayout from "../../Pages/AdminSide/DashboardLayout";;
 import AdminLogRoute from "../../Components/private/AdminLogRoute";
-import Dashboard from '../../Pages/AdminSide/Dashboard'
+import Dashboard from '../../Pages/AdminSide/Dashboard';
+import Patient from '../../Pages/AdminSide/Patient';
+import Doctor from "../../Pages/AdminSide/Doctor";
+import VarificationDoc from "../../Pages/AdminSide/VarificationDoc";
+import Booking from "../../Pages/AdminSide/Booking";
 
 
 function AdminWrapper() {
@@ -31,6 +35,10 @@ function AdminWrapper() {
       ),
       children: [
         { path: "/", element: <Dashboard /> },
+        { path: "/patient", element: <Patient /> },
+        { path: "/doctor", element: <Doctor /> },
+        { path: "DocVerification", element: <VarificationDoc/> },
+        { path: "/booking", element: <Booking /> },
         
 
       ]

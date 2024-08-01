@@ -40,8 +40,7 @@ function ResetPassword() {
             if (response.status === 200) {
                 setFormError('');
                 toast.success('Password reset successful');
-                // Redirect based on user type (assuming 'user_type' is passed from location.state)
-                const userType = response.data.user_type; // Adjust as per your backend response structure
+                const userType = response.data.user_type; 
                 navigate(userType === 'doctor' ? '/auth/doctor/login' : '/auth/login');
             } else {
                 setFormError('Something went wrong. Please try again later.');
@@ -57,7 +56,7 @@ function ResetPassword() {
     return (
         <div className="flex w-full h-screen">
             <div className="w-full  flex  items-center">
-                <div className="bg-blue-100 w-full md:w-96 p-8 md:rounded-l-lg shadow-2xl">
+                <div className="bg-white bg-opacity-75 backdrop-blur-md w-full md:w-96 p-8 md:rounded-l-lg shadow-2xl">
                     <Formik
                         initialValues={initialValues}
                         validationSchema={validationSchema}
