@@ -12,6 +12,10 @@ import DoctorSearch from '../../Pages/UserSide/DoctorSearch';
 import DocProfile from '../../Pages/UserSide/DocProfile';
 import PaymentSucess from '../../Pages/UserSide/PaymentSucess';
 import PatientChatComponent from '../../Components/Messages/PatientMessage';
+import ViewBookingDetails from '../../Pages/UserSide/ViewBookingDetails';
+import VideoCallRoom from '../../Pages/UserSide/VideoCallRoom';
+import AboutPage from '../../Pages/UserSide/About';
+import RebookingComponent from '../../Pages/UserSide/Rebooking';
 
 const UserWrapper = () => {
   const dispatch = useDispatch();
@@ -60,11 +64,15 @@ const UserWrapper = () => {
       </>
     ),
     children:[
-      { path: '/profile', element: <UserProfile /> },
-      { path: '/doctor-list', element: <DoctorSearch /> },
+      {path: '/profile', element: <UserProfile /> },
+      {path: '/doctor-list', element: <DoctorSearch /> },
       {path: "/doctor-profile/:id", element: <DocProfile/>},
       {path: "/sucess-page", element: <PaymentSucess/>},
       {path: "/user-chat", element: <PatientChatComponent/>},
+      {path: "/booking-details", element: <ViewBookingDetails/>},
+      {path: "/room/:roomID", element: <VideoCallRoom/>},
+      {path: "/about-us", element: <AboutPage/>},
+      {path: "/rebooking", element: <RebookingComponent/>},
     ]
   }
 ])

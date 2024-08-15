@@ -12,7 +12,25 @@ import { toast } from "react-toastify";
 import { UserAPIwithAcess } from "../Api/Api";
 import Cookies from "js-cookie";
 
+// Utility function to check if a time slot is in the future
+const isFutureTimeSlot = (date, timeSlot) => {
+  const now = dayjs();
+  const currentDateTime = now.format("YYYY-MM-DD HH:mm");
 
+  const selectedDateTime = dayjs(`${date} ${timeSlot.from}`);
+
+  if (date === now.format("YYYY-MM-DD")) {
+    return selectedDateTime.isAfter(currentDateTime);
+  }
+
+  return true; // For future dates, all slots are considered in the future
+};
+
+
+// Utility function to sort time slots in ascending order
+const sortTimeSlotsAscending = (slots) => {
+  return slots.sort((a, b) => dayjs(a.from, "HH:mm").isAfter(dayjs(b.from, "HH:mm")) ? 1 : -1);
+};
 
 const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
   const accessToken = Cookies.get("access");
@@ -53,9 +71,14 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
 
       const response = await UserAPIwithAcess.get(
         `appointment/patient/check/doctor/${doctorId}/slots?date=${date}`
-        , config);
+        , config
+      );
 
-      setAvailableTimeSlots(response.data.available_slots || []);
+      // Filter out past time slots
+      const futureSlots = response.data.available_slots?.filter((slot) => isFutureTimeSlot(date, slot)) || [];
+      const sortedSlots = sortTimeSlotsAscending(futureSlots);
+
+      setAvailableTimeSlots(sortedSlots);
     } catch (error) {
       console.error("Error fetching available time slots:", error);
     } finally {
@@ -96,7 +119,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
     console.log("doctor_id got here befor  passing", doctorId)
     console.log("patient id got here befor  passing", patientID)
     UserAPIwithAcess
-      .post(`appointment/complete-order/`, {
+      .post(`/appointment/complete-order/`, {
         payment_id: paymentID,
         order_id: orderID,
         signature: signature,
@@ -114,6 +137,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         }
       })
       .catch((error) => {
+        console.log('this is the errror');
         console.log(error);
       });
   };
@@ -149,7 +173,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         // Configure Razorpay options
         const options = {
           key: "rzp_test_GJppfEzteBKRSe", // Enter the Key ID generated from the Dashboard
-          name: "Acme Corp",
+          name: "DocConnect",
           description: "Test Transaction",
           image: "https://example.com/your_logo",
           order_id: order, //This is a sample Order ID. Pass the `id` obtained in the response of createOrder().
@@ -198,52 +222,59 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
   };
 
 
-  // const handleWalletPayment = () => {
-  //   // Check slot availability before proceeding with payment
-  //   UserAPIwithAcess
-  //     .post(`appointment/check-availability/`, {
-  //       doctor_id: doctorId,
-  //       selected_from_time: selectedTimeSlot.from,
-  //       selected_to_time: selectedTimeSlot.to,
-  //       selected_day: selectedDate.format("YYYY-MM-DD"),
-  //     }, config)
-  //     .then((availabilityCheckResponse) => {
-  //       if (!availabilityCheckResponse.data.available) {
-  //         toast.warning("This slot is already booked. Please choose another slot.");
-  //         return;
-  //       }
+  const handleWalletPayment = () => {
+    // Check slot availability before proceeding with payment
+    console.log('doctor id in wallet payment:', doctorId);
+    UserAPIwithAcess
+      .post(`appointment/check-availability/`, {
+        doctor_id: doctorId,
+        selected_from_time: selectedTimeSlot.from,
+        selected_to_time: selectedTimeSlot.to,
+        selected_day: selectedDate.format("YYYY-MM-DD"),
+      }, config)
+      .then((availabilityCheckResponse) => {
+        console.log('availabilityCheckResponse:', availabilityCheckResponse);
+        if (!availabilityCheckResponse.data.available) {
+          toast.warning("This slot is already booked. Please choose another slot.");
+          return;
+        }
 
-        // UserAPIwithAcess
-        //   .post(`appointment/wallet/payment/`, {
-        //     payment_id: `wall-pay-${selectedDate.format("YYYY-MM-DD")}-${selectedTimeSlot.from}`,
-        //     amount: fees,
-        //     doctor_id: doctorId,
-        //     patient_id: patientID,
-        //     booked_date: selectedDate.format("YYYY-MM-DD"),
-        //     booked_from_time: selectedTimeSlot.from,
-        //     booked_to_time: selectedTimeSlot.to,
-        //   }, config)
-        //   .then((response) => {
-        //     console.log(response.data);
-        //     if (response.status === 201) {
-        //       navigate("/sucess-page"); // Fix the typo here
-        //       toast.success("Payment successful!");
-        //     }
-        //   })
-        //   .catch((error) => {
-        //     console.log(error.response.data.error);
-        //     toast.error(error.response.data.error);
-        //   });
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error during payment processing:", error);
-  //       // Consider displaying a user-friendly error message
-  //     });
-  // };
+
+        UserAPIwithAcess
+          .post(`appointment/wallet/payment/`, {
+            payment_id: `wall-pay-${selectedDate.format("YYYY-MM-DD")}-${selectedTimeSlot.from}`,
+            amount: fees,
+            doctor_id: doctorId,
+            patient_id: patientID,
+            booked_date: selectedDate.format("YYYY-MM-DD"),
+            booked_from_time: selectedTimeSlot.from,
+            booked_to_time: selectedTimeSlot.to,
+          }, config)
+          .then((response) => {
+            console.log('response data in wallet:',response.data);
+            if (response.status === 201) {
+              navigate("/sucess-page"); 
+              toast.success("Payment successful!");
+            }
+          })
+          .catch((error) => {
+            console.log(error.response.data.error);
+            toast.error(error.response.data.error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error during payment processing:", error);
+        // Consider displaying a user-friendly error message
+      });
+  };
 
 
   const handleTimeSlotSelect = (timeSlot) => {
     setSelectedTimeSlot(timeSlot);
+  };
+
+  const handleCloseCancel = () => {
+    setCancel(false);
   };
 
   return (
@@ -305,6 +336,24 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
                   <div className="w-full max-w-md px-4 md:h-auto">
                     <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
                       <div className="flex justify-end p-2"></div>
+                      <button
+                        type="button"
+                        className=" absolute top-2 right-2 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        onClick={handleCloseCancel}
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
                       <div className="p-6 pt-0 text-center">
                         <svg
                           className="w-16 h-16 mx-auto text-red-600 mb-6"
@@ -324,12 +373,12 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
                           Please select your payment method
                         </h3>
 
-                        {/* <button
-                          className="text-white bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800"
+                        <button
+                          className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 "
                           onClick={() => handleWalletPayment()}
                         >
                           Using Wallet
-                        </button> */}
+                        </button>
                         <button
                           className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 "
                           onClick={() => handlePayment()}

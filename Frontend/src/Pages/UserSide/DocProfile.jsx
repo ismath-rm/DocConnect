@@ -66,7 +66,7 @@ function DocProfile() {
         experience: doct.years_of_experience ? `${doct.years_of_experience} years` : "1 year",
         timing: doct.consultation_time
             ? doct.consultation_time
-            : "10:00 AM - 6:00 PM",
+            : "5:00 AM - 10:00 PM",
         bookingFees: doct.consultation_fees
             ? `₹ ${parseInt(doct.consultation_fees).toLocaleString("en-IN", {
                 maximumFractionDigits: 0,

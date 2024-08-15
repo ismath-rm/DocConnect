@@ -9,6 +9,10 @@ urlpatterns = [
     # slot updation for a bulk data
     path('doctors/<str:custom_id>/update_slots/bulk/', views.DoctorSlotBulkUpdateView.as_view(), name='update-doctor-slots-bulk'),
 
+    # Advanvanced slot creation from the doctor side
+    path('doctors/<str:custom_id>/update_slots/advanced/', views.AdvancedSlotUpdateView.as_view(), name='update-doctor-advacedSlot'),
+
+
     path('doctors/<str:custom_id>/update_slots/',views.DoctorSlotUpdateView.as_view(), name='update-doctor-slots'),
     path('doctors/<str:custom_id>/delete_slot/',views.DoctorSlotDeleteView.as_view(), name='delete-slot'),
 
@@ -36,9 +40,19 @@ urlpatterns = [
 
     path('detail/transaction/<str:pk>', views.TrasactionRetriveAPIView.as_view(), name='doctor-slots-api'),
 
+    # pay using wallet
+
+    path('wallet/payment/', views.PayUsingWalletAPIview.as_view(), name='wallet_order-payment'),
+
+
     # for cancel the booking from the patient side
 
     path('cancel/booking/', views.cancel_booking, name='cancel-booking'),
+
+    # for cancel the booking from the Docotr side
+
+    path('cancel/booking/doctor/', views.cancel_booking_doctor, name='cancel-booking'),
+
 
     # for getting the booking details for the perticular patient for Patient side listing
 
@@ -57,6 +71,18 @@ urlpatterns = [
 
     path('api/doctor-transactions/', views.DoctorTransactionsAPIView.as_view(), name='doctor-transactions'),
 
+    path('update-order/<str:transaction_id>/', views.UpdateOrderAPIView.as_view(), name='update_order'),
+
+    path('geting/transaction/<str:transaction_id>/', views.GetingTransaction.as_view(), name='transaction_'),
+
+    path('transactionCommission/', views.TransactionCommissionView.as_view(), name='transaction_commission'),
 
 
+
+
+    # for getting the details in the admin dashboard
+
+    path('api/admin-transactions/', views.AdminDashboardDataAPIView.as_view(), name='admin-transactions'),
+
+    path('api/transactions-doctor-account/<str:doctor_id>/', views.DoctorAccountTransactionsAPIView.as_view(), name='patient-transactions'),
 ]

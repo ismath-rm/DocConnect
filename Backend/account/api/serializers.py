@@ -211,7 +211,7 @@ class UserDoctorCustomIDSerializer(serializers.ModelSerializer):
  
 
 
-# class WalletUpdateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Wallet
-#         exclude = ['patient']
+class WalletUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        exclude = ['patient']

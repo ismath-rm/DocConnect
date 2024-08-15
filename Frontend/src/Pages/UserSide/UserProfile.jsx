@@ -5,7 +5,7 @@ import { BASE_URL } from '../../utils/constants/Constants'
 import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';
 import { FaEdit } from 'react-icons/fa';
-import BookindDetails from '../../Components/userside/Element/BookindDetails';
+import { UserAPIwithAcess } from '../../Components/Api/Api';
 
 const UserProfile = () => {
   const accessToken = Cookies.get("access");
@@ -46,8 +46,6 @@ const UserProfile = () => {
     country: '',
   });
 
-  const [booking, setBooking] = useState(null);
-
   useEffect(() => {
     fetchUserProfile();
   }, []);
@@ -74,31 +72,42 @@ const UserProfile = () => {
       });
 
       console.log('profile pic is updated', userData.profile_picture);
+      console.log('User ID for wallet:', userData.id);
 
-      // Fetch booking details using the user data
-      fetchBookingDetails(userData.id);
-      console.log('fetchBookingDetails:', fetchBookingDetails);
+      fetctWallet(userData.id);
+      console.log('fetctWallet:', fetctWallet);
       console.log('custom_id:', userData.id);
+
 
     } catch (error) {
       console.error('Error fetching user details:', error);
     }
   };
 
-  const fetchBookingDetails = (id) => {
-    console.log('bookig_id is:', id);
-    axios
-      .get(`${BASE_URL}appointment/booking/details/patient/${id}`, config)
+
+  const [wallet, setWallet] = useState('');
+
+  // ........................... fetch Wallet data........................................................
+
+  const fetctWallet = (custom_id) => {
+    console.log('the id is in fetchwallet:', custom_id);
+    UserAPIwithAcess.get(`auth/wallet/amount/${custom_id}`, config)
       .then((res) => {
-        setBooking(res.data.data);
-        console.log("Booking details fetched:", res.data.data);
+        console.log('API response:', res);
+        console.log('API response data:', res.data);
+        console.log('Wallet balance:', res.data.balance);
+        setWallet(res.data.balance);
+        console.log(res.data.balance);
       })
-      .catch((err) => {
-        console.error('Error fetching booking details:', err);
-        toast.error('Error fetching booking details');
+      .catch((error) => {
+        if (error.response && error.response.status === 404) {
+          console.log('Wallet not found, setting balance to 0');
+          setWallet(0); // Set default value to 0 if wallet not found
+        } else {
+          console.error('Error fetching wallet data:', error);
+        }
       });
   };
-
 
 
   const handleFileChange = (e) => {
@@ -142,6 +151,8 @@ const UserProfile = () => {
       case "username":
         if (!value.trim()) {
           error = "Username is required.";
+        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+          error = "Name should only contain letters and spaces.";
         }
         break;
 
@@ -385,32 +396,19 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/******************************* Tihs portion for the  Bookin details listing ********************************  */}
+      {/* *************************************************This portion for Wallet********************************************************/}
 
-      <div className="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-        <div className="flow-root">
-          <h3 className="text-xl font-semibold dark:text-white">
-            Your Booking Details
-          </h3>
-          {booking && booking.length > 0 ? (
-            <ul className="mb-6 divide-y divide-gray-200 dark:divide-gray-700">
-              {booking.map((booking, index) => (
-                <li key={index} className="py-4">
-                  <BookindDetails
-                    transaction_id={booking.transaction_id}
-                  // Add other booking details here
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="pt-10 pl-5 font-bold text-2xl text-red-600">
-              No booking history
-            </p>
-          )}
+      <div className="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="mb-4 text-xl font-semibold dark:text-white">
+          Your Wallet Amount
+        </h3>
+
+        <div className="flex justify-center items-center">
+          <div className="text-xl font-bold">
+            ₹{wallet}
+          </div>
         </div>
       </div>
-
 
     </div>
   );

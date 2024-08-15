@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import dayjs from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import Timer from "../Timer/Timer";
 import { toast } from "react-toastify";
-// import { baseUrl } from "../../utils/constants/Constants";
-import { TrashIcon } from "@heroicons/react/24/solid";
-import moment from "moment";
-import DatePickerComponent from "../calender/DatePickerComponent";
+import dayjs from "dayjs";
+import Timer from "../Timer/Timer";
 import Cookies from "js-cookie";
 import { UserAPIwithAcess } from "../Api/Api";
 
-const DoctorWeeklySlotBooking = ({ docid, setRefresh,setBulk, setNormal}) => {
-  const [selectedFromDate, setSelectedFromDate] = useState(dayjs());
-  const [selectedToDate, setSelectedToDate] = useState(dayjs());
-  const [timeSlots, setTimeSlots] = useState([]);
+const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdvanceBooking }) => {
+  const [selectedFromDate, setSelectedFromDate] = useState(dayjs().format("DD-MM-YYYY"));
+  const [selectedToDate, setSelectedToDate] = useState(dayjs().format("DD-MM-YYYY"));
   const [fromTime, setFromTime] = useState(null);
   const [toTime, setToTime] = useState(null);
+  const [selectedDays, setSelectedDays] = useState([]);
   const accessToken = Cookies.get("access");
-    const config = {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
+  const config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+
+  const daysOfWeek = [
+    { label: "Monday", value: "Monday" },
+    { label: "Tuesday", value: "Tuesday" },
+    { label: "Wednesday", value: "Wednesday" },
+    { label: "Thursday", value: "Thursday" },
+    { label: "Friday", value: "Friday" },
+    { label: "Saturday", value: "Saturday" },
+    { label: "Sunday", value: "Sunday" },
+  ];
+
+  const today = dayjs().format("DD-MM-YYYY");
 
   useEffect(() => {
     // Fetch existing time slots for the selected date range and update state
@@ -37,39 +42,50 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh,setBulk, setNormal}) => {
     setToTime(newTime);
   };
 
-  const handleDateChange = (newDate, dateType) => {
+  const handleDateChange = (e, dateType) => {
+    const { value } = e.target;
     if (dateType === "from") {
-      setSelectedFromDate(newDate);
+      setSelectedFromDate(value);
+      if (dayjs(value, "DD-MM-YYYY").isAfter(dayjs(selectedToDate, "DD-MM-YYYY"))) {
+        setSelectedToDate(value); // Ensure toDate is not before fromDate
+      }
     } else if (dateType === "to") {
-      setSelectedToDate(newDate);
+      setSelectedToDate(value);
     }
   };
 
+  const handleDayChange = (dayValue) => {
+    setSelectedDays((prevSelectedDays) =>
+      prevSelectedDays.includes(dayValue)
+        ? prevSelectedDays.filter((day) => day !== dayValue)
+        : [...prevSelectedDays, dayValue]
+    );
+  };
+
   const handleSaveSlots = () => {
-    const currentDate = moment(); // Get the current date
+    const currentDate = dayjs();
 
-    if (fromTime && toTime) {
-      const fromTimeFormatted = moment(fromTime.$d);
-      const toTimeFormatted = moment(toTime.$d);
+    if (fromTime && toTime && selectedDays.length > 0) {
+      const fromTimeFormatted = dayjs(fromTime);
+      const toTimeFormatted = dayjs(toTime);
+      const selectedFromDayjs = dayjs(selectedFromDate, "DD-MM-YYYY");
+      const selectedToDayjs = dayjs(selectedToDate, "DD-MM-YYYY");
 
-      // Validate the date range
-      const maxDateRange = 14; // Maximum allowed date range in days
-      const dateRangeInDays = selectedToDate.diff(selectedFromDate, "days");
+      const maxDateRange = 14;
+      const dateRangeInDays = selectedToDayjs.diff(selectedFromDayjs, "day");
 
       if (dateRangeInDays > maxDateRange) {
         toast.warning(`Date range cannot exceed ${maxDateRange} days.`);
         return;
       }
 
-      // Validate that selectedFromDate is not before the current date
-      if (selectedFromDate.isBefore(currentDate, "day")) {
+      if (selectedFromDayjs.isBefore(currentDate, "day")) {
         toast.warning("Please select a date on or after the current date.");
         return;
       }
 
-      // Validate the time range, you can customize this based on your requirements
-      const allowedStartTime = moment("05:00:00", "HH:mm:ss");
-      const allowedEndTime = moment("22:00:00", "HH:mm:ss");
+      const allowedStartTime = dayjs("05:00:00", "HH:mm:ss");
+      const allowedEndTime = dayjs("22:00:00", "HH:mm:ss");
 
       if (
         fromTimeFormatted.isBefore(allowedStartTime) ||
@@ -79,12 +95,9 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh,setBulk, setNormal}) => {
         return;
       }
 
-      const durationInMinutes = toTimeFormatted.diff(
-        fromTimeFormatted,
-        "minutes"
-      );
-      const minSlotDuration = 20;
-      const maxSlotDuration = 40;
+      const durationInMinutes = toTimeFormatted.diff(fromTimeFormatted, "minute");
+      const minSlotDuration = 30;
+      const maxSlotDuration = 60;
 
       if (
         durationInMinutes < minSlotDuration ||
@@ -96,57 +109,60 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh,setBulk, setNormal}) => {
         return;
       }
 
-      // Axios request to save slots
       const newSlot = {
         from_time: fromTimeFormatted.format("HH:mm:ss"),
         to_time: toTimeFormatted.format("HH:mm:ss"),
+        days: selectedDays, // Send the selected days to the backend
       };
-      const updatedSlots = [newSlot];
 
       UserAPIwithAcess
-        .post(`appointment/doctors/${docid}/update_slots/bulk/`, {
-          from_date: selectedFromDate.format("YYYY-MM-DD"),
-          to_date: selectedToDate.format("YYYY-MM-DD"),
-          slots: updatedSlots,
-        },config)
-        .then((response) => {
-          // Call the function to fetch available slots if needed
-          // fetchAvailableSlots();
+        .post(
+          `appointment/doctors/${docid}/update_slots/bulk/`,
+          {
+            from_date: selectedFromDayjs.format("YYYY-MM-DD"),
+            to_date: selectedToDayjs.format("YYYY-MM-DD"),
+            slots: [newSlot],
+          },
+          config
+        )
+        .then(() => {
           setRefresh(true);
           toast.success("Slots created successfully");
         })
         .catch((error) => {
           console.error("Error updating time slots:", error);
-          toast.error(
-            "Duplicate and Overlapping slots are not allowed. Please choose a different time range."
-          );
+          toast.error("Failed to create slots. Please try again.");
         });
     } else {
-      toast.warning("Please select from and to time");
+      toast.warning("Please select from and to time, and at least one working day.");
     }
   };
 
   return (
-    <div>
-      <label
-        htmlFor="settings-timezone"
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-      >
-        Select your date range
-      </label>
-      <div className="flex">
-        <DatePickerComponent
-          label="From Date"
-          onDateChange={handleDateChange}
-          dateType="from"
-          minDate={dayjs().toDate()}
-        />
-        <DatePickerComponent
-          label="To Date"
-          onDateChange={handleDateChange}
-          dateType="to"
-          minDate={dayjs().toDate()}
-        />
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="mb-6">
+        <label
+          htmlFor="settings-timezone"
+          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        >
+          Select your date range
+        </label>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="date"
+            value={dayjs(selectedFromDate, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            onChange={(e) => handleDateChange(e, "from")}
+            min={dayjs(today, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            className="flex-1 border border-gray-300 rounded p-2"
+          />
+          <input
+            type="date"
+            value={dayjs(selectedToDate, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            onChange={(e) => handleDateChange(e, "to")}
+            min={dayjs(selectedFromDate, "DD-MM-YYYY").format("YYYY-MM-DD")} // Ensure toDate is not before fromDate
+            className="flex-1 border border-gray-300 rounded p-2"
+          />
+        </div>
       </div>
 
       <div className="mb-6">
@@ -156,30 +172,69 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh,setBulk, setNormal}) => {
         >
           Create time slot
         </label>
-        <div className="flex pb-4">
+        <div className="flex flex-col gap-4 sm:flex-row justify-center items-center">
           <Timer label="From Time" onTimeChange={handleFromTimeChange} />
           <Timer label="To Time" onTimeChange={handleToTimeChange} />
         </div>
-        <button
-          onClick={handleSaveSlots}
-          className=" text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+      </div>
+
+      <div className="mb-6">
+        <p>Consultaion Time Duration: 30, 35, 40, 45, 50, 55, 60 minute</p>
+      </div>
+
+      <div className="mb-6">
+        <label
+          htmlFor="workingDays"
+          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
         >
-          Save Slots
+          Select Working Days
+        </label>
+        <div className="flex flex-wrap gap-4 justify-center items-center">
+          {daysOfWeek.map((day) => (
+            <label key={day.value} className="flex items-center space-x-2 font-semibold">
+              <input
+                type="checkbox"
+                value={day.value}
+                checked={selectedDays.includes(day.value)}
+                onChange={() => handleDayChange(day.value)}
+                className="form-checkbox"
+              />
+              <span>{day.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={handleSaveSlots}
+        className="mt-4 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+      >
+        Save Slots
+      </button>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+        <button
+          onClick={() => {
+            setBulk(false);
+            setNormal(true);
+          }}
+          className="text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Create Single
         </button>
 
-        <div className="block flex justify-between pt-8">
-          <button
-            onClick={() => {
-              setBulk(false);
-              setNormal(true);
-            }}
-            className="ml-10 text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-          >
-            Create Single
-          </button>
-
-          
-        </div>
+        <button
+          onClick={() => {
+            console.log("Advanced slot creation button clicked");
+            setBulk(false);
+            setNormal(false);
+            setAdvanceBooking(true);
+            console.log("AdvanceBooking state set to true");
+          }}
+          className="text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Advanced slot creation
+        </button>
       </div>
     </div>
   );

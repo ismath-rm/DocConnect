@@ -10,11 +10,12 @@ import { DateCalendar } from "@mui/x-date-pickers";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import moment from "moment";
 import DoctorWeeklySlotBooking from '../../Components/doctorside/DoctorWeeklySlotBooking';
+import AdvancedSlotBooking from '../../Components/doctorside/AdvancedSlotBooking';
 import { UserAPIwithAcess } from '../Api/Api';
 import Cookies from "js-cookie";
 
-
 const DoctorSlotBooking = ({ docid }) => {
+  console.log("docid in slot listing:", docid);
   const accessToken = Cookies.get("access");
   const config = {
     headers: {
@@ -29,32 +30,29 @@ const DoctorSlotBooking = ({ docid }) => {
   const currentTime = dayjs(new Date());
   const [isBulkBooking, setBulk] = useState(false);
   const [isNormalBooking, setNormal] = useState(true);
+  const [isAdvancedBooking, setAdvanceBooking] = useState(false);
   const [isRefresh, setRefresh] = useState(false);
-  
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
 
   useEffect(() => {
     // Fetch existing time slots for the selected date and update state
     fetchAvailableSlots();
   }, [selectedDate, docid, isRefresh]);
 
-  // function to fetch the available slots
+  const fetchAvailableSlots = (pageUrl) => {
+    const url = pageUrl || `appointment/doctors/${docid}/slots?date=${selectedDate.format("YYYY-MM-DD")}`;
 
-  const fetchAvailableSlots = () => {
-    UserAPIwithAcess.get(
-      `appointment/doctors/${docid}/slots?date=${selectedDate.format(
-        "YYYY-MM-DD"
-      )}`,
-      config
-    )
+    UserAPIwithAcess.get(url, config)
       .then((response) => {
-        setTimeSlots(response.data.available_slots || []);
+        setTimeSlots(response.data.data || []);
+        setNextPage(response.data.pagination.next);
+        setPrevPage(response.data.pagination.previous);
       })
       .catch((error) => {
         console.error("Error fetching existing time slots:", error);
       });
   };
-
-  // this is used for to convert the time to 12 hour format
 
   const convertTo12HourFormat = (timeString) => {
     if (!timeString) {
@@ -76,8 +74,6 @@ const DoctorSlotBooking = ({ docid }) => {
     return `${hoursIn24HourFormat}:${minutes} ${period}`;
   };
 
-  // ************************** Handling the slotselection ****************************
-
   const handleTimeSlotSelect = (timeSlot) => {
     setSelectedTimeSlot(timeSlot);
   };
@@ -85,8 +81,6 @@ const DoctorSlotBooking = ({ docid }) => {
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
   };
-
-  // *************************** Handling the form and two time component time management*****************
 
   const handleFromTimeChange = (newTime) => {
     setFromTime(newTime);
@@ -96,19 +90,19 @@ const DoctorSlotBooking = ({ docid }) => {
     setToTime(newTime);
   };
 
-  //  ********************************* Doctor slot updation function ***************************************
-
   const handleSaveSlots = () => {
     if (fromTime && toTime) {
-      // Convert the selected time range to moment objects
       const fromTimeFormatted = moment(fromTime.$d);
       const toTimeFormatted = moment(toTime.$d);
-
-      // Set the allowed time range
       const allowedStartTime = moment("05:00:00", "HH:mm:ss");
       const allowedEndTime = moment("22:00:00", "HH:mm:ss");
 
-      // Check if the selected time range is within the allowed range
+      // New Validation: Ensure that start time is before end time
+      if (fromTimeFormatted.isSameOrAfter(toTimeFormatted)) {
+        toast.warning("Please select a valid time range.");
+        return;
+      }
+
       if (
         fromTimeFormatted.isBefore(allowedStartTime) ||
         toTimeFormatted.isAfter(allowedEndTime)
@@ -117,17 +111,13 @@ const DoctorSlotBooking = ({ docid }) => {
         return;
       }
 
-      // Calculate the duration in minutes
       const durationInMinutes = toTimeFormatted.diff(
         fromTimeFormatted,
         "minutes"
       );
+      const minSlotDuration = 30;
+      const maxSlotDuration = 60;
 
-      // Define min and max slot durations
-      const minSlotDuration = 20;
-      const maxSlotDuration = 40;
-
-      // Check if the duration is within the allowed range
       if (
         durationInMinutes < minSlotDuration ||
         durationInMinutes > maxSlotDuration
@@ -138,18 +128,13 @@ const DoctorSlotBooking = ({ docid }) => {
         return;
       }
 
-      // Get the current date and time
       const currentDate = moment();
-      const currentDateTime = currentDate.format("YYYY-MM-DD HH:mm:ss");
-
-      // Combine selected date and time
       const selectedDateTime = moment(
         `${selectedDate.format("YYYY-MM-DD")} ${fromTimeFormatted.format(
           "HH:mm:ss"
         )}`
       );
 
-      // Check if the selected date is the current date and selected time is after 30 minutes from the current time
       if (
         selectedDateTime.isSame(currentDate, "day") &&
         selectedDateTime.isBefore(currentDate.add(30, "minutes"))
@@ -181,7 +166,7 @@ const DoctorSlotBooking = ({ docid }) => {
         .catch((error) => {
           console.error("Error updating time slots:", error);
           toast.error(
-            "Duplicate and Overlapping slots are not allowed. Please choose a different time range."
+            "Duplicate slots are not allowed. Please choose a different time range."
           );
         });
     } else {
@@ -189,7 +174,6 @@ const DoctorSlotBooking = ({ docid }) => {
     }
   };
 
-  // ******************************** Docotr slot Deletion function *************************
 
   const handleDeleteSlot = (index) => {
     const slotToDelete = timeSlots[index];
@@ -206,7 +190,7 @@ const DoctorSlotBooking = ({ docid }) => {
     )
       .then((response) => {
         fetchAvailableSlots(); // Refresh the slots after deletion
-        toast.success("slot deleted sucessfully");
+        toast.success("Slot deleted successfully");
       })
       .catch((error) => {
         console.error("Error deleting time slot:", error);
@@ -214,12 +198,13 @@ const DoctorSlotBooking = ({ docid }) => {
   };
 
   return (
-    <div>
+    <div className="container mx-auto p-4 max-w-6xl">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateCalendar
           value={selectedDate}
           onChange={handleDateChange}
           minDate={dayjs()}
+          className="mb-4"
         />
       </LocalizationProvider>
       <div className="mb-6">
@@ -229,47 +214,66 @@ const DoctorSlotBooking = ({ docid }) => {
               htmlFor="settings-timezone"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Create time slot
+              Create Time Slot
             </label>
-            <div className="flex pb-4">
-              <Timer label="from time" onTimeChange={handleFromTimeChange} />
-              <Timer label="to time" onTimeChange={handleToTimeChange} />
+            <div className="flex flex-col sm:flex-row gap-4 mb-4 justify-center items-center">
+              <Timer label="From Time" onTimeChange={handleFromTimeChange} />
+              <Timer label="To Time" onTimeChange={handleToTimeChange} />
             </div>
             <button
               onClick={handleSaveSlots}
-              className=" text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
             >
               Save Slots
             </button>
-            <div className="block flex justify-items-start pt-8">
+            <div className="flex flex-col sm:flex-row gap-4 pt-8 justify-between items-center">
               <button
                 onClick={() => {
                   setBulk(true);
                   setNormal(false);
                 }}
-                className="ml-10 text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Create slot for a bulk date
+                Create Slot for Bulk Dates
               </button>
 
-
+              <button
+                onClick={() => {
+                  setBulk(false);
+                  setNormal(false);
+                  setAdvanceBooking(true);
+                }}
+                className="text-blue-600 bg-gray-200 hover:bg-blue-600 hover:text-white focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                Advanced Slot Creation
+              </button>
             </div>
           </>
         )}
-        
+
         {isBulkBooking && (
           <DoctorWeeklySlotBooking
             docid={docid}
             setRefresh={setRefresh}
             setBulk={setBulk}
             setNormal={setNormal}
+            setAdvanceBooking={setAdvanceBooking}
 
           />
         )}
 
+        {isAdvancedBooking && (
+          <AdvancedSlotBooking
+            docid={docid}
+            setRefresh={setRefresh}
+            setBulk={setBulk}
+            setNormal={setNormal}
+            setAdvanceBooking={setAdvanceBooking}
+          />
+        )}
       </div>
-      <h2 className="font-bold p-2 mb-2 border-2 border-black">
-        Created Time Slots for - {selectedDate.format("YYYY-MM-DD")}
+      <h2 className="font-bold p-2 mb-2 border-2 border-black text-lg">
+        Created Time Slots for - {selectedDate.format("DD-MM-YYYY")}
       </h2>
       {timeSlots.length > 0 ? (
         <div className="pb-6">
@@ -278,32 +282,49 @@ const DoctorSlotBooking = ({ docid }) => {
               <li
                 key={index}
                 onClick={() => handleTimeSlotSelect(timeSlot)}
-                style={{
-                  cursor: "pointer",
-                  fontWeight: selectedTimeSlot === timeSlot ? "bold" : "normal",
-                  border: "2px solid #ddd",
-                  padding: "8px",
-                  marginBottom: "4px",
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "space-between", // Align items horizontally
-                }}
+                className={`cursor-pointer font-medium border-2 border-gray-300 p-2 mb-2 relative flex justify-between items-center ${selectedTimeSlot === timeSlot ? "bg-gray-200 font-bold" : ""
+                  }`}
               >
-                {`${convertTo12HourFormat(
-                  timeSlot.from
-                )} - ${convertTo12HourFormat(timeSlot.to)}`}
+                {`${convertTo12HourFormat(timeSlot.from)} - ${convertTo12HourFormat(timeSlot.to)}`}
                 {!timeSlot.is_booked && (
                   <TrashIcon
-                    className="h-5 w-5 text-red-500 cursor-pointer "
+                    className="h-5 w-5 text-red-500 cursor-pointer"
                     onClick={() => handleDeleteSlot(index)}
                   />
                 )}
               </li>
             ))}
           </ul>
+
+          <nav className="flex justify-between px-4">
+            <ul className="pagination flex space-x-2">
+              <li className={`page-item ${!prevPage ? 'disabled' : ''}`}>
+                <button
+                  className={`page-link px-4 py-2 border-2 rounded 
+                              ${prevPage ? 'border-blue-500 text-blue-500 bg-white hover:bg-blue-500 hover:text-white'
+                      : 'border-gray-300 text-gray-300 cursor-not-allowed bg-gray-100'}`}
+                  onClick={() => prevPage && fetchAvailableSlots(prevPage)}
+                  disabled={!prevPage}
+                >
+                  Previous
+                </button>
+              </li>
+              <li className={`page-item ${!nextPage ? 'disabled' : ''}`}>
+                <button
+                  className={`page-link px-4 py-2 border-2 rounded 
+                              ${nextPage ? 'border-blue-500 text-blue-500 bg-white hover:bg-blue-500 hover:text-white'
+                      : 'border-gray-300 text-gray-300 cursor-not-allowed bg-gray-100'}`}
+                  onClick={() => nextPage && fetchAvailableSlots(nextPage)}
+                  disabled={!nextPage}
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       ) : (
-        <p className="font-medium text-red-400 pt-2">
+          <p className="font-medium text-red-400 pt-2 text-center">
           No slots created for the selected date.
         </p>
       )}

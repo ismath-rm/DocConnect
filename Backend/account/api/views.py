@@ -424,8 +424,17 @@ class DoctorCustomIdView(generics.RetrieveAPIView):
 
 # for to display the wallet amout of the user
     
-# class WalletAmountView(generics.RetrieveUpdateAPIView):
-#     permission_classes = [IsAuthenticated]
-#     queryset = Wallet.objects.all()
-#     serializer_class = WalletUpdateSerializer
-#     lookup_field = 'patient_id'
+class WalletAmountView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Wallet.objects.all()
+    serializer_class = WalletUpdateSerializer
+    lookup_field = 'patient_id'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            wallet = self.get_object()
+            serializer = self.get_serializer(wallet)
+            return Response(serializer.data)
+        except Wallet.DoesNotExist:
+            # Return a default balance of 0 if the wallet does not exist
+            return Response({'balance': 0}, status=status.HTTP_200_OK)

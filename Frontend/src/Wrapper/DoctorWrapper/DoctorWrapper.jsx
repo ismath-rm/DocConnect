@@ -9,6 +9,11 @@ import isAuthDoctor from '../../utils/isAuthDoctor'
 import DoctorPrivateRoute from '../../Components/private/DoctorPrivateRoute'
 import DoctorProfile from '../../Pages/Doctor/DoctorProfile'
 import DoctorChatComponent from "../../Components/Messages/DoctMessage";
+import DoctorSlotBooking from '../../Components/doctorside/DoctorSlotBooking'
+import DoctorSlot from '../../Pages/Doctor/DoctorSlot'
+import DoctorVideoCallRoom from '../../Pages/Doctor/DoctorVideoCallRoom'
+import Accountdetailes from '../../Pages/Doctor/Accountdetailes'
+import About from '../../Pages/Doctor/About'
 
 const DoctorWrapper = () => {
   const dispatch = useDispatch();
@@ -49,6 +54,10 @@ const DoctorWrapper = () => {
         { path: '/doctorHome', element: <DoctorHome /> },
         { path: "/profile/", element: <DoctorProfile /> },
         { path: "/chat", element: <DoctorChatComponent /> },
+        { path: "/slot", element: <DoctorSlot /> },
+        { path: "/room/:roomID", element: <DoctorVideoCallRoom /> },
+        { path: "/accountDetails", element: <Accountdetailes/> },
+        { path: "/aboutUs", element: <About/> },
       ]
     }
   ]);

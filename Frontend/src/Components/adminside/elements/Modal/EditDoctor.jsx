@@ -236,7 +236,7 @@ function EditDoctor({ doctorId, setIsDataFetched, setEditModalVisible }) {
             <div className="flex justify-center mt-6">
               <button
                 type="submit"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-primary-600 border border-transparent rounded-lg focus:ring-4 focus:ring-primary-200 hover:bg-primary-700 focus:outline-none focus:ring-primary-700"
+                className="text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-7 text-center dark:focus:ring-primary-900"
               >
                 Save 
               </button>

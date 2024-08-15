@@ -8,6 +8,7 @@ import { FaEdit } from 'react-icons/fa';
 import DocumentVerificationForm from '../../Components/doctorside/Element/DocumentVerificationForm';
 import { UserAPIwithAcess, UserImageAccess } from '../../Components/Api/Api';
 import { jwtDecode } from 'jwt-decode';
+import { Link } from 'react-router-dom'
 import DoctorSlotBooking from '../../Components/doctorside/DoctorSlotBooking'
 import BookindDetailsDoctor from '../../Components/doctorside/Element/BookingDetailsDoctor'
 
@@ -243,23 +244,6 @@ const DoctorProfile = () => {
 
 
 
-  const [booking, setBooking] = useState(null);
-
-  const fetchBookingDetails = async (id) => {
-    console.log('fetchBookingDetails id:', id);
-    await UserAPIwithAcess.get(
-      `appointment/booking/details/doctor/${id}`,
-      config
-    )
-      .then((res) => {
-        setBooking(res.data.data);
-        console.log("the details of the doctor is here", res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   const fetchData = async () => {
     try {
       const token = Cookies.get("access");
@@ -278,8 +262,7 @@ const DoctorProfile = () => {
         setdocid(doct.data.id)
         setisVerified(doct.data.user.is_id_verified);
         console.log('this is not what i want');
-        fetchBookingDetails(doct.data.id);
-        console.log("its display fetchBookingDetails");
+
       }
       // Handle the response data as needed
       console.log(doct.data);
@@ -514,7 +497,7 @@ const DoctorProfile = () => {
           ))}
           <div className="col-span-6 sm:col-full">
             <button
-              className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
               type="submit"
             >
               Save all
@@ -526,47 +509,21 @@ const DoctorProfile = () => {
       {/* {id && !isVerified && <DocumentVerificationForm id={id} />} */}
       {/* *************************************************This portion for Time slot********************************************************/}
       {isVerified &&
-        <div className="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-          <h3 className="mb-4 text-xl font-semibold dark:text-white">
-            Time slot Allotment
-          </h3>
-          <div className="mb-4">
-            <DoctorSlotBooking docid={docid} />
-          </div>
-        </div>}
+        <div className="py-10 text-center">
+        <Link
+          to="/doctor/slot"
+          className="px-12 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3"
+        >
+          Create Slot
+        </Link>
+      </div>}
 
       {/* ***********************************************verification documents***************************************************************** */}
       {id && !isVerified && <DocumentVerificationForm id={id} />}
 
-      {/******************************* Tihs portion for the  Bookin details listing ********************************  */}
+      
 
-      {isVerified &&
-        <div className="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-
-          <div className="flow-root">
-            <h3 className="text-xl font-semibold dark:text-white">
-              Your Booking Details
-            </h3>
-            {booking && booking.length > 0 ? (
-              <ul className="mb-6 divide-y divide-gray-200 dark:divide-gray-700">
-                {booking.map((booking, index) => {
-                  return (
-                    <li key={index} className="py-4">
-                      <BookindDetailsDoctor
-                        transaction_id={booking.transaction_id}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p className="pt-10 pl-5 font-bold text-2xl text-red-600">
-                {" "}
-                No booking history{" "}
-              </p>
-            )}
-          </div>
-        </div>}
+      
     </div>
 
 

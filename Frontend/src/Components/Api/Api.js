@@ -32,3 +32,12 @@ export const UserImageAccess = axios.create({
       "Content-Type": "application/json",
     },
   });
+
+  export const AdminDashBoardAPI = axios.create({
+    baseURL: `${BASE_URL}appointment/api/admin-transactions/`,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });

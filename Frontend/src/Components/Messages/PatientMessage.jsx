@@ -67,6 +67,7 @@ const PatientChatComponent = () => {
 
     const connectToWebSocket = (appointmentId) => {
         console.log(appointmentId);
+        setChatMessages([])
         console.log('hey this is the appointment id page');
         if (!appointmentId) return;
 
@@ -191,7 +192,9 @@ const PatientChatComponent = () => {
                                             key={booking.transaction_id}
                                             onClick={() => handleAppointmentClick(booking)}
                                         >
-                                            <div className="doctor-list-item d-flex align-items-start">
+                                            <div className="doctor-list-item d-flex align-items-start"
+                                                style={{ borderBottom: "1px solid #ccc", paddingBottom: "8px" }}
+                                            >
                                                 <img
                                                     src={
                                                         booking.doctor_profile_picture
@@ -208,7 +211,7 @@ const PatientChatComponent = () => {
                                                         <small
                                                             style={{ fontSize: "16px", fontWeight: "bold" }}
                                                         >
-                                                            {booking.doctor_name}
+                                                            Dr.{booking.doctor_name}
                                                         </small>
                                                     </div>
                                                 </div>
@@ -220,7 +223,7 @@ const PatientChatComponent = () => {
                             <div className="chat-window h-96">
                                 {selectedAppointment && (
                                     <div className="flex flex-col flex-grow w-screen h-full max-w-xl bg-red shadow-xl rounded-lg overflow-hidden">
-                                        <div className="selected-doctor-info d-flex align-items-center  ">
+                                        <div className="selected-doctor-info d-flex align-items-center bg-blue-500">
                                             <img
                                                 src={
                                                     selectedAppointment.doctor_profile_picture
@@ -243,7 +246,7 @@ const PatientChatComponent = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col flex-grow h-0 p-4 overflow-auto bg-gray-200" ref={chatMessagesRef}>
+                                        <div className="flex flex-col flex-grow h-0 p-4 overflow-auto " ref={chatMessagesRef}>
                                             {chatMessages.map((msg, index) => (
                                                 <div key={index} className="message-container">
                                                     {msg.sendername === doct.first_name ? (

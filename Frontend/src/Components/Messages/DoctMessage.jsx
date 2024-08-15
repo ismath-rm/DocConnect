@@ -227,7 +227,10 @@ const DoctorChatComponent = () => {
                       key={booking.transaction_id}
                       onClick={() => handleAppointmentClick(booking)}
                     >
-                      <div className="doctor-list-item d-flex align-items-start">
+                      <div className="doctor-list-item d-flex align-items-start"
+                        style={{ borderBottom: "1px solid #ccc", paddingBottom: "8px" }}
+                      >
+
                         <img
                           src={`${booking.patient_profile_picture
                             ? booking.patient_profile_picture
@@ -253,7 +256,7 @@ const DoctorChatComponent = () => {
               <div className="chat-window h-96" >
                 {selectedAppointment && (
                   <div className="flex flex-col flex-grow w-screen h-full max-w-xl bg-white shadow-xl rounded-lg overflow-hidden">
-                    <div className="selected-doctor-info d-flex align-items-center">
+                    <div className="selected-doctor-info d-flex align-items-center bg-blue-500">
                       <img
                         src={selectedAppointment.patient_profile_picture}
                         alt={selectedAppointment.patient_name}

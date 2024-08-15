@@ -11,7 +11,7 @@ const UserHome = () => {
   const authentication_user = useSelector((state) => state.authentication_user)
 
   return (
-    <div>
+    <div className='overflow-x-hidden overflow-y-hidden'>
       <BannerSection/>
       <Appointment/>
       <HowItWorksSection/>

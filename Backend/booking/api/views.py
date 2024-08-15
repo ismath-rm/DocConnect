@@ -2,6 +2,7 @@ from xml.dom import ValidationErr
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from booking.models import *
+from notification.models import Notification
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,6 +30,9 @@ from django.db.models import F
 from booking.api.razorpay.main import RazorpayClient
 from notification.models import *
 from django.http import Http404
+from django.db.models import Sum
+from datetime import datetime
+
 
 
 class DoctorSlotsAPIView(APIView):
@@ -36,6 +40,7 @@ class DoctorSlotsAPIView(APIView):
         print("custom_id is :",custom_id)
         try:
             doctor = Doctor.objects.get(id=custom_id)
+            print('doctor:',doctor)
         except Doctor.DoesNotExist:
             return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -53,14 +58,37 @@ class DoctorSlotsAPIView(APIView):
         # Use prefetch_related to optimize the query and fetch availability in a single query
         doctor_with_availability = Doctor.objects.prefetch_related('doctoravailability_set').get(id=custom_id)
 
+        slots_queryset = doctor_with_availability.doctoravailability_set.filter(day=date_object).order_by('start_time')
+        print('slots_queryset',slots_queryset)
+
+        paginator = CustomPageNumberPagination()
+        paginated_slots = paginator.paginate_queryset(slots_queryset, request)
+
         # Retrieve and serialize the available slots for the specified date
+        # slots = {
+        #     'available_slots': [
+        #         {'from': slot.start_time, 'to': slot.end_time, 'is_booked': slot.is_booked} for slot in doctor_with_availability.doctoravailability_set.filter(day=date_object)
+        #     ]
+        # }
+
         slots = {
             'available_slots': [
-                {'from': slot.start_time, 'to': slot.end_time, 'is_booked': slot.is_booked} for slot in doctor_with_availability.doctoravailability_set.filter(day=date_object)
+                {'from': slot.start_time, 'to': slot.end_time, 'is_booked': slot.is_booked} for slot in paginated_slots
             ]
         }
+        response = {
+            "status_code": status.HTTP_200_OK,
+            "data": slots['available_slots'],
+            "pagination": {
+                "current_page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link()
+            }
+        }
 
-        return Response(slots, status=status.HTTP_200_OK)
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class DoctorSlotUpdateView(APIView):
@@ -97,6 +125,26 @@ class DoctorSlotBulkUpdateView(APIView):
             if 'overlap_error' in e.get_codes():
                 return Response({"error": str(e)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class AdvancedSlotUpdateView(APIView):
+    def post(self, request, custom_id):
+        try:
+            doctor = Doctor.objects.get(id=custom_id)
+        except Doctor.DoesNotExist:
+            return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = AdvancedSlotUpdateSerializer(data=request.data, context={'doctor': doctor})
+        try:
+            serializer.is_valid(raise_exception=True)
+            slots = serializer.update_doctor_slots(doctor)
+            return Response({"message": "Slots created successfully", "slots": slots}, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            if 'overlap_error' in e.get_codes():
+                return Response({"error": str(e)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)     
+
 
 
 class DoctorSlotDeleteView(APIView):
@@ -279,7 +327,21 @@ class TransactionAPIView(APIView):
                 doctor_availability = get_object_or_404(DoctorAvailability, doctor_id=doctor_id, day=selected_day, start_time__lte=selected_from_time, end_time__gte=selected_to_time)
                 doctor_availability.is_booked=True
                 doctor_availability.save()
-           
+
+                print('haiiiiii')
+                Notification.objects.create(
+            Patient=patient, Doctor=doctor, message=f'{patient.first_name} has booked an appointment on {selected_day} @ {selected_from_time}.',
+            receiver_type=Notification.RECEIVER_TYPE[1][0],notification_type=Notification.NOTIFICATION_TYPES[0][0]
+            )
+            
+                print(f'Notification ID: {Notification.id}')
+                print(f'Patient: {Notification.Patient}')
+                print(f'Doctor: {Notification.Doctor}')
+                print(f'Message: {Notification.message}')
+                print(f'Receiver Type: {Notification.receiver_type}')
+                print(f'Notification Type: {Notification.notification_type}')
+                print(f'Created At: {Notification.created}')
+                
             except Exception as e:
                 print(f"Doctor availability not found: {e}")
             
@@ -303,7 +365,7 @@ class TransactionAPIView(APIView):
 
 class TrasactionListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Transaction.objects.all()
+    queryset = Transaction.objects.all().order_by('booked_date','booked_from_time')
     # print('queryset',queryset)
     serializer_class = TranscationModelList
     pagination_class = PageNumberPagination    
@@ -312,11 +374,88 @@ class TrasactionListAPIView(generics.ListAPIView):
     search_fields = ['transaction_id', 'doctor_id','patient_id', 'booked_date']
 
 
+# class TrasactionRetriveAPIView(generics.RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     queryset = Transaction.objects.all()
+#     serializer_class = TranscationModelList
+#     lookup_field = 'pk'
+
 class TrasactionRetriveAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Transaction.objects.all()
+    queryset = Transaction.objects.all().order_by('-booked_date','-booked_from_time')  # Sort by booked_date in descending order
     serializer_class = TranscationModelList
+    pagination_class = PageNumberPagination
     lookup_field = 'pk'
+
+
+
+class PayUsingWalletAPIview(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        transaction_serializer = TranscationModelSerializer(data=request.data)
+        print("request data wallet: ",request.data)
+        
+        if transaction_serializer.is_valid():
+            try:
+                doctor_id = transaction_serializer.validated_data.get("doctor_id")
+                print('doctor_id in wallet :',doctor_id)
+                patient_id = transaction_serializer.validated_data.get("patient_id")
+                print('patient_id in wallet :',patient_id)
+                doctor = Doctor.objects.get(id=doctor_id)
+                print('doctor in wallet :',doctor)
+                patient = User.objects.get(id=patient_id)
+                print('patient in wallet :',patient)
+                wallet,isWallet = Wallet.objects.get_or_create(patient=patient)
+                print('wallet in wallet:',wallet,isWallet)
+
+
+                if wallet.balance >= transaction_serializer.validated_data.get("amount"):
+                    wallet.balance -= transaction_serializer.validated_data.get("amount")
+                    wallet.save()
+
+                    selected_from_time = transaction_serializer.validated_data.get("booked_from_time")
+                    selected_to_time = transaction_serializer.validated_data.get("booked_to_time")
+                    selected_day = transaction_serializer.validated_data.get("booked_date")
+
+                    doctor_availability = get_object_or_404(
+                        DoctorAvailability,
+                        doctor_id=doctor_id,
+                        day=selected_day,
+                        start_time__lte=selected_from_time,
+                        end_time__gte=selected_to_time
+                    )
+                    doctor_availability.is_booked = True
+                    doctor_availability.save()
+
+                    Notification.objects.create(
+                        Patient=patient,
+                        Doctor=doctor,
+                        message=f'{patient.first_name} has booked an appointment on {selected_day} @ {selected_from_time}.',
+                        receiver_type=Notification.RECEIVER_TYPE[1][0],
+                        notification_type=Notification.NOTIFICATION_TYPES[0][0]
+                    )
+
+                    transaction_serializer.save()
+
+                    response = {
+                        "status_code": status.HTTP_201_CREATED,
+                        "message": "Transaction created, and doctor availability updated"
+                    }
+                    return Response(response, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"error": "Insufficient balance in the wallet"}, status=status.HTTP_400_BAD_REQUEST)
+
+            except Exception as e:
+                print(e)
+                return Response({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        else:
+            response = {
+                "status_code": status.HTTP_400_BAD_REQUEST,
+                "message": "Bad request",
+                "error": transaction_serializer.errors
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -335,6 +474,9 @@ def cancel_booking(request):
         
         patient = User.objects.get(id=patient_id)
         print('patient in cancel booking:',patient)
+
+        wallet = Wallet.objects.get(patient=patient)
+        print('wallet in cancel booking:',wallet)
                 
         try:
             doctor = Doctor.objects.get(id=transaction.doctor_id)
@@ -348,12 +490,28 @@ def cancel_booking(request):
                 )
 
                 print('doctor_availability in cancel booking:',doctor_availability)
-
+                wallet.balance += (transaction.amount)
                 doctor_availability.is_booked = False
                 doctor_availability.save()
-                
-                
+                wallet.save()
+                print('wallet amount:',wallet.save())
+                transaction.is_consultency_completed = 'REFUNDED'
+                print('Updated transaction status:', transaction.is_consultency_completed)
                 transaction.save()
+
+                formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
+
+                Notification.objects.create(
+                    Patient=patient,
+                    Doctor=doctor,
+                    message=f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.',
+                    receiver_type=Notification.RECEIVER_TYPE[1][0],  # Assuming doctor is the receiver
+                    notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
+                )
+                
+
+                print('message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
+
                 
 
                 return JsonResponse({"message": "Booking canceled successfully"}, status=status.HTTP_200_OK)
@@ -373,20 +531,108 @@ def cancel_booking(request):
         return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['POST'])
+def cancel_booking_doctor(request):
+    transaction_id = request.data.get('transaction_id')
+    print("here i got the transaction id", transaction_id)
+
+    try:
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+        patient_id = transaction.patient_id
+        try:
+            patient = User.objects.get(id=patient_id)
+            try:
+                wallet = Wallet.objects.get(patient=patient)
+                try:
+                    doctor = Doctor.objects.get(id=transaction.doctor_id)
+                    try:
+                        print('doctor in cancel doctor:',doctor)
+                        print('day in cancel doctor:',transaction.booked_date,)
+                        print('start_time in cancel doctor:',transaction.booked_from_time)
+                        print('end_time in cancel doctor:',transaction.booked_to_time)
+                        print(DoctorAvailability.objects.filter(doctor=doctor, day=transaction.booked_date, end_time=transaction.booked_to_time))
+                        doctor_availability = DoctorAvailability.objects.get(
+                            doctor=doctor,
+                            day=transaction.booked_date,
+                            start_time=transaction.booked_from_time,
+                            end_time=transaction.booked_to_time
+                        )
+
+                        print('aloo ismatheeee')
+                        wallet.balance += (transaction.amount)
+
+                       
+                        doctor_availability.delete()
+                        wallet.save()
+                        transaction.is_consultency_completed = 'REFUNDED'
+                        print('Updated the doctor transaction status:', transaction.is_consultency_completed)
+                        transaction.save()
+
+                        # Sending notification to the patient
+                        formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
+                        Notification.objects.create(
+                            Patient=patient,
+                            Doctor=doctor,
+                            message=f'{doctor.user.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.',
+                            receiver_type=Notification.RECEIVER_TYPE[0][0],  # Assuming doctor is the receiver
+                            notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
+                        )
+
+                        print('Message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
+                        
+                        return JsonResponse({"message": "Booking cancelled successfully"}, status=status.HTTP_200_OK)
+
+                    except DoctorAvailability.DoesNotExist:
+                        return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+
+                except Doctor.DoesNotExist:
+                    return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            except Wallet.DoesNotExist:
+                return JsonResponse({"error": "Wallet not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    except Transaction.DoesNotExist:
+        return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 5  # Number of items per page
+    page_size_query_param = 'page_size'  # Allow client to set the page size
+    max_page_size = 100  # Maximum allowed page size
+
 
 @api_view(['GET'])
 def PatientBookingDetailsAPIView(request, patient_id):
     print('bookig details:',request.data)
     try:
         print('Patient ID:', patient_id)
-        transactions = Transaction.objects.filter(patient_id=str(patient_id))
-        print('SQL Query:', str(transactions.query))
+        transactions = Transaction.objects.filter(patient_id=str(patient_id)).order_by('-booked_date', '-booked_from_time')
+        # print('SQL Query:', str(transactions.query))
         print('transactions:',transactions)
-        serializer = TranscationModelList(transactions, many=True)
+
+        # Add pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 5  # Set the page size
+        paginated_transactions = paginator.paginate_queryset(transactions, request)
+        serializer = TranscationModelListPatient(paginated_transactions, many=True)
+        # response = {
+        #         "status_code": status.HTTP_200_OK,
+        #         "data": serializer.data
+        #     }
         response = {
-                "status_code": status.HTTP_200_OK,
-                "data": serializer.data
+            "status_code": status.HTTP_200_OK,
+            "data": serializer.data,
+            "pagination": {
+                "current_page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link()
             }
+        }
+
         return Response(response, status=status.HTTP_200_OK)
     except Transaction.DoesNotExist:
         return Response({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -398,12 +644,29 @@ def DoctorBookingDetailsAPIView(request, doctor_id):
     print('user booking details:',request.data)
     try:
         print('doctor_id:',doctor_id)
-        transactions = Transaction.objects.filter(doctor_id=doctor_id)
-        serializer = TranscationModelList(transactions, many=True)
+        transactions = Transaction.objects.filter(doctor_id=str(doctor_id)).order_by('-booked_date', '-booked_from_time')
+        # serializer = TranscationModelListDoctor(transactions, many=True)
+
+        # Add pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 5  # Set the page size
+        paginated_transactions = paginator.paginate_queryset(transactions, request)
+        serializer = TranscationModelListDoctor(paginated_transactions, many=True)
+        # response = {
+        #         "status_code": status.HTTP_200_OK,
+        #         "data": serializer.data
+        #     }
+        
         response = {
-                "status_code": status.HTTP_200_OK,
-                "data": serializer.data
+            "status_code": status.HTTP_200_OK,
+            "data": serializer.data,
+            "pagination": {
+                "current_page": paginator.page.number,
+                "total_pages": paginator.page.paginator.num_pages,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link()
             }
+        }
         return Response(response, status=status.HTTP_200_OK)
     except Transaction.DoesNotExist:
         return Response({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -508,3 +771,132 @@ class DoctorTransactionsAPIView(APIView):
             data.append(transaction_data)
 
         return Response(data, status=status.HTTP_200_OK)
+    
+
+
+class UpdateOrderAPIView(APIView):
+    def patch(self, request, transaction_id):
+        print('request transaction_id :',request.data)
+        print('after video call transaction_id:',transaction_id)
+        # Retrieve the order object using the transaction_id
+        order = get_object_or_404(Transaction, transaction_id=transaction_id)
+
+        # Update the order's status
+        order.is_consultency_completed = 'COMPLETED' # Assuming 'completed' is a valid status
+        order.save()
+
+        # Serialize the updated order
+        serializer = TranscationModelList(order)
+
+        # Return the serialized order data
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class TransactionCommissionView(APIView):
+    def post(self, request):
+        print('request commision:',request.data)
+        serializer = TransactionCommissionSerializer(data=request.data)
+        if serializer.is_valid():
+            print('Validated Data:', serializer.validated_data) 
+            # Attempt to get the object, or create it if it doesn't exist
+            transaction_commission, created = TransactionCommission.objects.get_or_create(
+                transaction_id=serializer.validated_data['transaction'],
+                defaults=serializer.validated_data
+            )
+            if created:
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                # If the object already exists, update it with the new data
+                for attr, value in serializer.validated_data.items():
+                    setattr(transaction_commission, attr, value)
+                transaction_commission.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class GetingTransaction(generics.RetrieveAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TranscationModelList  # Replace with your serializer
+
+    def get_object(self):
+        transaction_id = self.kwargs['transaction_id']
+        try:
+            return self.queryset.get(transaction_id=transaction_id)
+        except Transaction.DoesNotExist:
+            return None
+        
+
+# admin side dashboard data
+
+
+
+class AdminDashboardDataAPIView(APIView):
+    permission_classes=[IsAdminUser]
+    def get(self, request, *args, **kwargs):
+        total_patients = User.objects.count()
+        total_doctors = Doctor.objects.count()
+        total_transactions = Transaction.objects.count()
+        total_revenue = Transaction.objects.aggregate(Sum('amount'))['amount__sum']
+        print('revenuee ',total_revenue)
+
+        response = {
+            'total_patients': total_patients - total_doctors -1,
+            'total_doctors': total_doctors,
+            'total_transactions': total_transactions,
+            'total_revenue': total_revenue
+        }
+
+        return JsonResponse(response, safe=False,status=status.HTTP_200_OK)
+    
+
+# class DoctorAccountTransactionsAPIView(generics.ListAPIView):
+#     queryset = Transaction.objects.all()
+#     serializer_class = TranscationModelList
+#     pagination_class = None
+
+#     def get_queryset(self):
+#         doctor_id = self.kwargs['doctor_id']
+#         doctor =Doctor.objects.get(user=doctor_id)
+#         print('doctor_id in trans:',doctor_id)
+#         print(Transaction.objects.filter(doctor_id=doctor.id))
+
+#         return Transaction.objects.filter(doctor_id=doctor.id)
+
+
+class DoctorAccountTransactionsAPIView(generics.ListAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TranscationModelListExtra
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        doctor_id = self.kwargs['doctor_id']
+        doctor = Doctor.objects.get(user=doctor_id)
+        
+        # Filter transactions where the consultancy is completed
+        completed_transactions = Transaction.objects.filter(
+            doctor_id=doctor.id,
+            is_consultency_completed='COMPLETED'  # Assuming 'COMPLETED' is the correct value
+        ).order_by('-transaction_id')
+        
+        # Debugging output
+        print('doctor_id in trans:', doctor_id)
+        print(completed_transactions)
+
+        return completed_transactions
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        # Calculate the total amount for the doctor across all transactions
+        doctor_id = self.kwargs['doctor_id']
+        doctor = Doctor.objects.get(user=doctor_id)
+        
+        total_amount_received = Transaction.objects.filter(
+            doctor_id=doctor.id,
+            is_consultency_completed='COMPLETED'
+        ).aggregate(total=Sum(F('amount') * 0.8))['total'] or 0
+
+        # Add the total_amount_received to the response data
+        response.data['total_amount_received'] = total_amount_received
+        
+        return response

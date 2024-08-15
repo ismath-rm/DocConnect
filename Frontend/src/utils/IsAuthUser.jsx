@@ -42,7 +42,7 @@ const IsAuthUser = async () => {
   let decoded = jwtDecode(accessToken);
 
   if (decoded.exp > currentTime) {
-    return {'name':decoded.first_name,isAuthenticated:true,user_id:null};
+    return {'name':decoded.first_name,isAuthenticated:true,user_id:decoded.user_id};
   
   } else {
 

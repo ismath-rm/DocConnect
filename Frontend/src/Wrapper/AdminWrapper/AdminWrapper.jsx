@@ -11,6 +11,7 @@ import Patient from '../../Pages/AdminSide/Patient';
 import Doctor from "../../Pages/AdminSide/Doctor";
 import VarificationDoc from "../../Pages/AdminSide/VarificationDoc";
 import Booking from "../../Pages/AdminSide/Booking";
+import Account from "../../Pages/AdminSide/Account";
 
 
 function AdminWrapper() {
@@ -39,6 +40,7 @@ function AdminWrapper() {
         { path: "/doctor", element: <Doctor /> },
         { path: "DocVerification", element: <VarificationDoc/> },
         { path: "/booking", element: <Booking /> },
+        {path: "/account", element : <Account/>},
         
 
       ]

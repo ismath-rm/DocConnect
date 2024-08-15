@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../utils/constants/Constants";
-import DocCrump from "../../Components/adminside/elements/BreadCrumps/DocCrump";
 import { toast } from "react-toastify";
-import DeleteDoct from "../../Components/adminside/elements/Modal/DeleteDoct";
 import EditPatient from "../../Components/adminside/elements/Modal/EditPatient";
 import Cookies from 'js-cookie';
 import { AdminAPIwithAcess } from "../../Components/Api/Api";
@@ -16,8 +14,6 @@ function Patient() {
     const [checked, setChecked] = useState(true);
     const [isEditModalVisible, setEditModalVisible] = useState(false);
     const [doctEditData, setEditingDoctorId] = useState(null);
-    const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
-
     const [nextPage, setNextPage] = useState(null);
     const [prevPage, setPrevPage] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -51,10 +47,7 @@ function Patient() {
         setEditingDoctorId(custom_id);
     };
 
-    const doctorDelete = (custom_id) => {
-        setDeleteModalVisible(true);
-        setEditingDoctorId(custom_id);
-    };
+
 
     // to fetch the data as per the search query
     const fetchUsers = (url) => {
@@ -87,7 +80,7 @@ function Patient() {
 
     useEffect(() => {
         fetchUsers(BASE_URL + `auth/patient/details/?search=${searchQuery}`);
-    }, [isEditModalVisible, checked, isDeleteModalVisible, searchQuery]);
+    }, [isEditModalVisible, checked, searchQuery]);
 
     return (
         <div className="flex flex-col  w-full mt-16">
@@ -128,37 +121,37 @@ function Patient() {
                     <div className="inline-block min-w-full align-middle">
                         <div className="overflow-hidden shadow">
 
-                            <table className="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
-                                <thead className="bg-gray-100 dark:bg-gray-700">
+                            <table className="min-w-full divide-y divide-gray-200 ">
+                                <thead className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                                     <tr>
 
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Name
                                         </th>
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Patient ID
                                         </th>
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Blood Group
                                         </th>
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Phone number
                                         </th>
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Status
                                             <br />
@@ -169,7 +162,7 @@ function Patient() {
 
                                         <th
                                             scope="col"
-                                            className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                            className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                         >
                                             Actions
                                         </th>
@@ -197,12 +190,12 @@ function Patient() {
                                                         <div className="text-base font-semibold text-gray-900 dark:text-white">
                                                             {item.first_name + " " + item.last_name}
                                                         </div>
-                                                        <div className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                                        <div className="text-sm font-normal text-black dark:text-gray-400">
                                                             {item.email}
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                                                <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     {item.custom_id}
                                                 </td>
                                                 <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -249,7 +242,7 @@ function Patient() {
                                                                 console.log(item.custom_id);
                                                             doctorEdit(item.id)
                                                         }}
-                                                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                                     >
                                                         <svg
                                                             className="w-4 h-4 mr-2"
@@ -268,6 +261,7 @@ function Patient() {
                                                     </button>
 
                                                 </td>
+
                                             </tr>
                                         );
                                     })}
@@ -276,10 +270,10 @@ function Patient() {
 
                             <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px' }}>
                                 <ul className="pagination">
-                                    <li className={`page-item ${!prevPage ? 'disabled' : ''}`}>
+                                    <li className="page-item">
                                         <button
-                                            className="page-link"
-                                            onClick={() => fetchUsers(prevPage)}
+                                            className="page-link font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded"
+                                            onClick={() => prevPage && fetchUsers(prevPage)}
                                         >
                                             Previous
                                         </button>
@@ -287,16 +281,18 @@ function Patient() {
                                 </ul>
 
                                 <ul className="pagination">
-                                    <li className={`page-item ${!nextPage ? 'disabled btn-primary' : ''}`}>
+                                    <li className="page-item">
                                         <button
-                                            className="page-link"
-                                            onClick={() => fetchUsers(nextPage)}
+                                            className="page-link font-bold bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded"
+                                            onClick={() => nextPage && fetchUsers(nextPage)}
                                         >
                                             Next
                                         </button>
                                     </li>
                                 </ul>
                             </nav>
+
+
 
                         </div>
                     </div>
@@ -315,7 +311,7 @@ function Patient() {
                     <div className="flex items-center justify-center h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full md:w-auto max-h-screen overflow-y-auto max-w-screen-2xl">
                             {/* Modal header */}
-                            <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
+                            <div className="flex items-center justify-between p-4 md:p-6 border-b rounded-t dark:border-gray-700">
                                 <h3 className="text-xl font-semibold dark:text-white">
                                     Edit user
                                 </h3>
@@ -354,18 +350,7 @@ function Patient() {
                 </div>
             )}
 
-            {/* ******************************************************User Delete Modal************************************************************* */}
 
-            {isDeleteModalVisible && (
-                <div className="fixed left-0 right-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full">
-                    <div className="w-full max-w-md px-4 md:h-auto">
-                        <DeleteDoct
-                            doctorId={doctEditData}
-                            setDeleteModalVisible={setDeleteModalVisible}
-                        />
-                    </div>
-                </div>
-            )}
         </div >
 
     );

@@ -42,6 +42,7 @@ class Transaction(models.Model):
     booked_to_time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True) 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='COMPLETED')
+    is_consultency_completed = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
 
 
 
@@ -60,3 +61,18 @@ class Transaction(models.Model):
 
     def __str__(self):
         return str(self.transaction_id)
+    
+
+class TransactionCommission(models.Model):
+    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name = 'commission')
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.2)
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    doctor_commission_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+ 
+    def save(self, *args, **kwargs): 
+        # Calculate commission amount based on the transaction amount and commission rate
+        self.commission_amount = self.transaction.amount * self.commission_rate
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Commission for Transaction {self.transaction.transaction_id}"    

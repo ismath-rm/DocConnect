@@ -7,7 +7,7 @@ import InstagramIcon from '../../assets/icons/instagram.png';
 
 function UserFooter() {
   return (
-    <footer className="bg-black text-white flex flex-col items-center px-8 py-10 md:px-16 md:py-11">
+    <footer className="bg-black text-white flex flex-col items-center px-8 py-10 md:px-16 md:py-11 ">
       <div className="flex flex-col md:flex-row w-full max-w-[1296px] mb-10">
         <div className="flex flex-col w-full md:w-1/3 items-start mb-8 md:mb-0 md:mr-8">
           <img src={Logo} alt="DocConnect Logo" className="w-24 mb-4" />

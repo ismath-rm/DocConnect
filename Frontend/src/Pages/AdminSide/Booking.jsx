@@ -24,7 +24,7 @@ function Booking() {
         "booked_date",
         "booked_from_time",
         "booked_to_time",
-        "status",
+        "is_consultency_completed",
         "created_at",
     ];
 
@@ -37,7 +37,7 @@ function Booking() {
         booked_date: "date",
         booked_from_time: "time",
         booked_to_time: "time",
-        status: "text",
+        is_consultency_completed: "text",
         created_at: "text",
     };
 
@@ -112,14 +112,14 @@ function Booking() {
                     <div className="inline-block min-w-full align-middle">
                         <div className="overflow-hidden shadow">
                             <table className="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
-                                <thead className="bg-gray-100 dark:bg-gray-700">
+                                <thead className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                                     <tr>
 
                                         {TransactionFields.map((field) => (
                                             <th
                                                 key={field}
                                                 scope="col"
-                                                className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+                                                className="px-6 py-3 text-sm font-semibold uppercase tracking-wider"
                                             >
                                                 {field.replace(/_/g, " ")}
                                             </th>
@@ -153,10 +153,10 @@ function Booking() {
                             {/* Pagination section */}
                             <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px' }}>
                                 <ul className="pagination">
-                                    <li className={`page-item ${!prevPage ? 'disabled' : ''}`}>
+                                    <li className="page-item">
                                         <button
-                                            className="page-link"
-                                            onClick={() => fetchTransactions(prevPage)}
+                                            className="page-link bg-blue-600 font-bold text-white hover:bg-blue-700 px-4 py-2 rounded"
+                                            onClick={() => prevPage && fetchTransactions(prevPage)}
                                         >
                                             Previous
                                         </button>
@@ -164,16 +164,17 @@ function Booking() {
                                 </ul>
 
                                 <ul className="pagination">
-                                    <li className={`page-item ${!nextPage ? 'disabled btn-primary' : ''}`}>
+                                    <li className="page-item">
                                         <button
-                                            className="page-link"
-                                            onClick={() => fetchTransactions(nextPage)}
+                                            className="page-link bg-blue-600 font-bold text-white hover:bg-blue-700 px-4 py-2 rounded"
+                                            onClick={() => nextPage && fetchTransactions(nextPage)}
                                         >
                                             Next
                                         </button>
                                     </li>
                                 </ul>
                             </nav>
+
                         </div>
                     </div>
                 </div>

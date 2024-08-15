@@ -29,7 +29,7 @@ function PaymentSucess() {
             <p> Have a great day!</p>
             <div className="py-10 text-center">
               <Link
-                to="/profile"
+                to="/booking-details"
                 className="px-12 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3"
               >
                 See Booking Detail

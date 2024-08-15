@@ -43,6 +43,14 @@ const navConfig = [
     path: '/admincontrol/booking',
     icon: (isSelected) => icon('ic_blog', isSelected),
   },
+
+  {
+    title: 'Account',
+    path: '/admincontrol/account',
+    icon: (isSelected) => icon('ic_analytics', isSelected),
+  },
+
+
 ];
 
 export default navConfig;

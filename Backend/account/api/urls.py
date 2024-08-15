@@ -50,7 +50,7 @@ urlpatterns = [
     path("custom-id/doctor/<str:pk>",views.DoctorCustomIdView.as_view(),name="custom-id-doctor"),
 
     # for getting the patient wallet amount
-    # path("wallet/amount/<str:patient_id>", views.WalletAmountView.as_view(), name="wallet-amount"),
+    path("wallet/amount/<str:patient_id>", views.WalletAmountView.as_view(), name="wallet-amount"),
 
 
 
