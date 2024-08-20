@@ -53,7 +53,7 @@ const Authentication = () => {
         <Route path="/doctor/signup" element={<DoctorPrivateRoute><DoctorRegister /></DoctorPrivateRoute>} />
         <Route path="/verifyotp" element={<PrivateRoute><VerifyOtp /></PrivateRoute>} />
         <Route path="/forgotpassword" element={<PrivateRoute><ForgotPassword /></PrivateRoute>} />
-            <Route path="/resetpassword/:id/:token" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
+        <Route path="/resetpassword/:id/:token" element={<PrivateRoute><ResetPassword /></PrivateRoute>} />
       </Routes>
         </p>
     </div>

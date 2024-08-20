@@ -32,6 +32,10 @@ from notification.models import *
 from django.http import Http404
 from django.db.models import Sum
 from datetime import datetime
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.dateparse import parse_datetime
+from decimal import Decimal
 
 
 
@@ -233,7 +237,7 @@ class PatientSlotsCheckingAPIView(APIView):
                 {'from': slot.start_time, 'to': slot.end_time, 'is_booked': slot.is_booked} for slot in doctor_with_availability.doctoravailability_set.filter(day=requested_date, is_booked=False)
             ]
         }
-
+ 
         return Response(slots, status=status.HTTP_200_OK)
     
 
@@ -459,28 +463,103 @@ class PayUsingWalletAPIview(APIView):
 
 
 
+# @api_view(['POST'])
+# def cancel_booking(request):
+#     print('cancel booking data:',request.data)
+#     transaction_id = request.data.get('transaction_id')
+#     print("here I got the transaction id", transaction_id)
+
+#     try:
+#         transaction = Transaction.objects.get(transaction_id=transaction_id)
+#         print('transaction id in cancel booking:',transaction)
+
+#         patient_id = transaction.patient_id
+#         print('patient_id in cancel booking:',patient_id)
+        
+#         patient = User.objects.get(id=patient_id)
+#         print('patient in cancel booking:',patient)
+
+#         wallet = Wallet.objects.get(patient=patient)
+#         print('wallet in cancel booking:',wallet)
+                
+#         try:
+#             doctor = Doctor.objects.get(id=transaction.doctor_id)
+#             print("doctor in cancel booking",doctor)
+#             try:
+#                 doctor_availability = DoctorAvailability.objects.get(
+#                     doctor=doctor,
+#                     day=transaction.booked_date,
+#                     start_time=transaction.booked_from_time,
+#                     end_time=transaction.booked_to_time
+#                 )
+
+#                 print('doctor_availability in cancel booking:',doctor_availability)
+#                 wallet.balance += (transaction.amount)
+#                 doctor_availability.is_booked = False
+#                 doctor_availability.save()
+#                 wallet.save()
+#                 print('wallet amount:',wallet.save())
+#                 transaction.is_consultency_completed = 'REFUNDED'
+#                 print('Updated transaction status:', transaction.is_consultency_completed)
+#                 transaction.save()
+
+#                 formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
+
+#                 Notification.objects.create(
+#                     Patient=patient,
+#                     Doctor=doctor,
+#                     message=f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.',
+#                     receiver_type=Notification.RECEIVER_TYPE[1][0],  # Assuming doctor is the receiver
+#                     notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
+#                 )
+                
+
+#                 print('message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
+
+                
+
+#                 return JsonResponse({"message": "Booking canceled successfully"}, status=status.HTTP_200_OK)
+
+#             except DoctorAvailability.DoesNotExist:
+#                         return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         except Doctor.DoesNotExist:
+#             return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            
+
+#         except User.DoesNotExist:
+#             return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#     except Transaction.DoesNotExist:
+#         return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['POST'])
 def cancel_booking(request):
-    print('cancel booking data:',request.data)
+    print('Cancel booking data:', request.data)
     transaction_id = request.data.get('transaction_id')
-    print("here I got the transaction id", transaction_id)
+    print("Received transaction ID:", transaction_id)
 
     try:
         transaction = Transaction.objects.get(transaction_id=transaction_id)
-        print('transaction id in cancel booking:',transaction)
+        print('Transaction in cancel booking:', transaction)
 
         patient_id = transaction.patient_id
-        print('patient_id in cancel booking:',patient_id)
-        
-        patient = User.objects.get(id=patient_id)
-        print('patient in cancel booking:',patient)
+        print('Patient ID in cancel booking:', patient_id)
 
-        wallet = Wallet.objects.get(patient=patient)
-        print('wallet in cancel booking:',wallet)
-                
+        patient = User.objects.get(id=patient_id)
+        print('Patient in cancel booking:', patient)
+
+        # Get or create wallet for the patient
+        wallet, created = Wallet.objects.get_or_create(patient=patient)
+        if created:
+            print(f"Created new wallet for patient: {patient.first_name}")
+
         try:
             doctor = Doctor.objects.get(id=transaction.doctor_id)
-            print("doctor in cancel booking",doctor)
+            print("Doctor in cancel booking:", doctor)
+
             try:
                 doctor_availability = DoctorAvailability.objects.get(
                     doctor=doctor,
@@ -489,18 +568,23 @@ def cancel_booking(request):
                     end_time=transaction.booked_to_time
                 )
 
-                print('doctor_availability in cancel booking:',doctor_availability)
-                wallet.balance += (transaction.amount)
+                print('Doctor availability in cancel booking:', doctor_availability)
+
+                # Refund the amount to the patient's wallet
+                wallet.balance += transaction.amount
+                wallet.save()
+
+                # Mark the doctor's availability as free
                 doctor_availability.is_booked = False
                 doctor_availability.save()
-                wallet.save()
-                print('wallet amount:',wallet.save())
+
+                # Update the transaction status to refunded
                 transaction.is_consultency_completed = 'REFUNDED'
-                print('Updated transaction status:', transaction.is_consultency_completed)
                 transaction.save()
 
                 formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
 
+                # Send a notification to the doctor
                 Notification.objects.create(
                     Patient=patient,
                     Doctor=doctor,
@@ -508,95 +592,353 @@ def cancel_booking(request):
                     receiver_type=Notification.RECEIVER_TYPE[1][0],  # Assuming doctor is the receiver
                     notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
                 )
-                
 
-                print('message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
+                print(f'Message: {patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
 
-                
-
-                return JsonResponse({"message": "Booking canceled successfully"}, status=status.HTTP_200_OK)
+                return JsonResponse({"message": "Booking canceled successfully and amount refunded to wallet."}, status=status.HTTP_200_OK)
 
             except DoctorAvailability.DoesNotExist:
-                        return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
 
         except Doctor.DoesNotExist:
             return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            
-
-        except User.DoesNotExist:
-            return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
 
     except Transaction.DoesNotExist:
         return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# @api_view(['POST'])
+# def cancel_booking_doctor(request):
+#     transaction_id = request.data.get('transaction_id')
+#     print("here i got the transaction id", transaction_id)
+
+#     try:
+#         transaction = Transaction.objects.get(transaction_id=transaction_id)
+
+#         patient_id = transaction.patient_id
+#         try:
+#             patient = User.objects.get(id=patient_id)
+#             try:
+#                 wallet = Wallet.objects.get(patient=patient)
+#                 try:
+#                     doctor = Doctor.objects.get(id=transaction.doctor_id)
+#                     try:
+#                         print('doctor in cancel doctor:',doctor)
+#                         print('day in cancel doctor:',transaction.booked_date,)
+#                         print('start_time in cancel doctor:',transaction.booked_from_time)
+#                         print('end_time in cancel doctor:',transaction.booked_to_time)
+#                         print(DoctorAvailability.objects.filter(doctor=doctor, day=transaction.booked_date, end_time=transaction.booked_to_time))
+#                         doctor_availability = DoctorAvailability.objects.get(
+#                             doctor=doctor,
+#                             day=transaction.booked_date,
+#                             start_time=transaction.booked_from_time,
+#                             end_time=transaction.booked_to_time
+#                         )
+
+#                         print('oiiiiiiiiiiii')
+#                         wallet.balance += (transaction.amount)
+
+                       
+#                         doctor_availability.delete()
+#                         wallet.save()
+#                         transaction.is_consultency_completed = 'REFUNDED'
+#                         print('Updated the doctor transaction status:', transaction.is_consultency_completed)
+#                         transaction.save()
+
+#                         # Sending notification to the patient
+#                         formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
+#                         Notification.objects.create(
+#                             Patient=patient,
+#                             Doctor=doctor,
+#                             message=f'{doctor.user.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.check your mail',
+#                             receiver_type=Notification.RECEIVER_TYPE[0][0],  # Assuming doctor is the receiver
+#                             notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
+#                         )
+
+#                         print('Message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
+                        
+#                         return JsonResponse({"message": "Booking cancelled successfully"}, status=status.HTTP_200_OK)
+
+#                     except DoctorAvailability.DoesNotExist:
+#                         return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#                 except Doctor.DoesNotExist:
+#                     return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#             except Wallet.DoesNotExist:
+#                 return JsonResponse({"error": "Wallet not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         except User.DoesNotExist:
+#             return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#     except Transaction.DoesNotExist:
+#         return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 @api_view(['POST'])
 def cancel_booking_doctor(request):
     transaction_id = request.data.get('transaction_id')
-    print("here i got the transaction id", transaction_id)
+    print("Received transaction ID:", transaction_id)
 
     try:
         transaction = Transaction.objects.get(transaction_id=transaction_id)
+        print("Transaction fetched successfully:", transaction)
 
         patient_id = transaction.patient_id
+        print("Patient ID from transaction:", patient_id)
+
         try:
             patient = User.objects.get(id=patient_id)
+            print("Patient fetched successfully:", patient)
+
             try:
-                wallet = Wallet.objects.get(patient=patient)
+                doctor = Doctor.objects.get(id=transaction.doctor_id)
+                print("Doctor fetched successfully:", doctor)
+
                 try:
-                    doctor = Doctor.objects.get(id=transaction.doctor_id)
-                    try:
-                        print('doctor in cancel doctor:',doctor)
-                        print('day in cancel doctor:',transaction.booked_date,)
-                        print('start_time in cancel doctor:',transaction.booked_from_time)
-                        print('end_time in cancel doctor:',transaction.booked_to_time)
-                        print(DoctorAvailability.objects.filter(doctor=doctor, day=transaction.booked_date, end_time=transaction.booked_to_time))
-                        doctor_availability = DoctorAvailability.objects.get(
-                            doctor=doctor,
-                            day=transaction.booked_date,
-                            start_time=transaction.booked_from_time,
-                            end_time=transaction.booked_to_time
-                        )
+                    print('Attempting to fetch doctor availability for:')
+                    print('Doctor:', doctor)
+                    print('Day:', transaction.booked_date)
+                    print('Start time:', transaction.booked_from_time)
+                    print('End time:', transaction.booked_to_time)
 
-                        print('aloo ismatheeee')
-                        wallet.balance += (transaction.amount)
+                    doctor_availability = DoctorAvailability.objects.get(
+                        doctor=doctor,
+                        day=transaction.booked_date,
+                        start_time=transaction.booked_from_time,
+                        end_time=transaction.booked_to_time
+                    )
+                    print("Doctor availability fetched successfully:", doctor_availability)
 
-                       
-                        doctor_availability.delete()
-                        wallet.save()
-                        transaction.is_consultency_completed = 'REFUNDED'
-                        print('Updated the doctor transaction status:', transaction.is_consultency_completed)
-                        transaction.save()
+                    # Deleting the doctor availability for that time slot
+                    doctor_availability.delete()
+                    print("Doctor availability deleted successfully.")
 
-                        # Sending notification to the patient
-                        formatted_time = transaction.booked_from_time.strftime('%I:%M %p')
-                        Notification.objects.create(
-                            Patient=patient,
-                            Doctor=doctor,
-                            message=f'{doctor.user.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.',
-                            receiver_type=Notification.RECEIVER_TYPE[0][0],  # Assuming doctor is the receiver
-                            notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
-                        )
+                    # Set the consultancy as cancelled
+                    transaction.is_consultency_completed = 'CANCELLED'
+                    transaction.save()
+                    print("Transaction status updated to CANCELLED.")
 
-                        print('Message:', f'{patient.first_name} has cancelled the appointment on {transaction.booked_date} @ {formatted_time}.')
-                        
-                        return JsonResponse({"message": "Booking cancelled successfully"}, status=status.HTTP_200_OK)
+                    # Generate rebooking link using transaction ID or a similar identifier
+                    rebooking_link = f"{settings.FRONTEND_URL}/rebook/{transaction_id}/"
+                    print("Rebooking link generated:", rebooking_link)
 
-                    except DoctorAvailability.DoesNotExist:
-                        return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+                    # Construct email message for rebooking
+                    subject = "Your Appointment Was Cancelled - Rebook Now"
+                    message = f"""
+                    Hello {patient.first_name},
 
-                except Doctor.DoesNotExist:
-                    return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+                    Unfortunately, your appointment with Dr. {doctor.user.first_name} on {transaction.booked_date} at {transaction.booked_from_time.strftime('%I:%M %p')} has been cancelled.
 
-            except Wallet.DoesNotExist:
-                return JsonResponse({"error": "Wallet not found"}, status=status.HTTP_404_NOT_FOUND)
+                    To rebook your appointment, please click the following link:
+                    {rebooking_link}
+
+                    Thank you,
+                    DocConnect
+                    """
+                    print("Email message constructed.")
+
+                    # Send rebooking email to the patient
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [patient.email])
+                    print("Rebooking email sent to:", patient.email)
+
+                    # Send a notification to the patient
+                    Notification.objects.create(
+                        Patient=patient,
+                        Doctor=doctor,
+                        message=f"Dr {doctor.user.first_name} has cancelled the appointment on {transaction.booked_date} @ {transaction.booked_from_time.strftime('%I:%M %p')}. Please check your email for a rebooking link.",
+                        receiver_type=Notification.RECEIVER_TYPE[0][0],  # Assuming doctor is the receiver
+                        notification_type=Notification.NOTIFICATION_TYPES[3][0]  # 'cancelled'
+                    )
+                    print("Notification created successfully.")
+
+                    return JsonResponse({"message": "Booking cancelled successfully. Rebooking link sent to the patient's email."}, status=status.HTTP_200_OK)
+
+                except DoctorAvailability.DoesNotExist:
+                    print("Doctor availability not found.")
+                    return JsonResponse({"error": "Doctor availability not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            except Doctor.DoesNotExist:
+                print("Doctor not found.")
+                return JsonResponse({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
 
         except User.DoesNotExist:
+            print("Patient not found.")
             return JsonResponse({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
 
     except Transaction.DoesNotExist:
+        print("Transaction not found.")
         return JsonResponse({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
+def available_slots(request, transaction_id):
+    print('request in available slot',request.data)
+    try:
+        print(f"Fetching transaction for ID: {transaction_id}")
+        
+        # Fetch the transaction to get relevant details
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+        print(f"Transaction found: {transaction}")
+        
+        # Fetch available slots after the cancellation time
+        available_slots = DoctorAvailability.objects.filter(
+            doctor_id=transaction.doctor_id,
+            day=transaction.booked_date,
+            start_time__gt=transaction.booked_to_time,
+            is_booked=False
+        ).order_by('start_time')  # Order by start time to get the nearest slot
+        
+        slots = [
+            {
+                'id': slot.id,
+                'day': slot.day,
+                'start_time': slot.start_time,
+                'end_time': slot.end_time,
+            } for slot in available_slots
+        ]
+        print(f"Formatted slots: {slots}")
+        
+        nearest_slot = slots[0] if slots else None
+
+        return JsonResponse({
+            "nearest_slot": nearest_slot,
+            "available_slots": slots
+        }, status=status.HTTP_200_OK)
+    
+    except Transaction.DoesNotExist:
+        print("Transaction not found.")
+        return JsonResponse({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+# class rebook_appointment(APIView):
+#     def post(self, request, transaction_id):
+#         try:
+#             # Fetch the transaction
+#             transaction = Transaction.objects.get(transaction_id=transaction_id)
+#             user = User.objects.get(id=transaction.patient_id)
+#             wallet = Wallet.objects.get(patient=user)
+
+#             # Refund the amount
+#             refund_amount = Decimal(transaction.amount)
+#             wallet.balance += refund_amount
+#             wallet.save()
+
+#             # Update transaction to indicate cancellation and refund
+#             transaction.is_refunded = True
+#             transaction.save()
+
+#             # Fetch available slots using the available_slots function
+#             # response = available_slots(request, transaction_id)
+            
+#             # response_data = response.content.decode('utf-8')
+#             # response_json = json.loads(response_data)
+
+#             nearest_slot = request.data.get("id")
+#             print('hey tthis is what it is ', nearest_slot)
+#             if not nearest_slot:
+#                 return Response({"error": "No available slots for rebooking."}, status=status.HTTP_400_BAD_REQUEST)
+#             print('helloo yooo', request.data.get('day'))
+#             # Update the transaction with the new time slot
+#             transaction.booked_date = request.data.get('day')
+#             transaction.booked_from_time = request.data.get('start_time')
+#             transaction.booked_to_time = request.data.get('end_time')
+#             transaction.is_consultency_completed = Transaction.STATUS_CHOICES[0][0]
+#             transaction.save()
+#             print('this reach heree man')
+#             # Update the doctor's availability to reflect the new booking
+#             DoctorAvailability.objects.create(
+#                 doctor_id=transaction.doctor_id,
+#                 day=request.data.get('day'),
+#                 start_time=request.data.get('start_time'),
+#                 end_time=request.data.get('end_time'),
+#                 is_booked=True
+#             )
+#             print('hety this is ismu')
+#             return Response({
+#                 "message": "rebooked successfully.",
+#                 "new_slot": nearest_slot,
+#                 # "available_slots": response_json.get("available_slots")
+#             }, status=status.HTTP_200_OK)
+
+#         except Transaction.DoesNotExist:
+#             return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except Wallet.DoesNotExist:
+#             return Response({"error": "Wallet not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+class rebook_appointment(APIView):
+    def post(self, request, transaction_id):
+        try:
+            # Fetch the transaction
+            transaction = Transaction.objects.get(transaction_id=transaction_id)
+            user = User.objects.get(id=transaction.patient_id)
+            wallet = Wallet.objects.get(patient=user)
+
+            # Refund the amount
+            refund_amount = Decimal(transaction.amount)
+            wallet.balance += refund_amount
+            wallet.save()
+
+            # Update transaction to indicate cancellation and refund
+            transaction.is_refunded = True
+
+            nearest_slot = request.data.get("id")
+            
+            if nearest_slot:
+                # Proceed with rebooking if slot details are provided
+                transaction.booked_date = request.data.get('day')
+                transaction.booked_from_time = request.data.get('start_time')
+                transaction.booked_to_time = request.data.get('end_time')
+                transaction.is_consultency_completed = Transaction.STATUS_CHOICES[0][0]
+                transaction.save()
+
+                # Update the doctor's availability to reflect the new booking
+                DoctorAvailability.objects.create(
+                    doctor_id=transaction.doctor_id,
+                    day=request.data.get('day'),
+                    start_time=request.data.get('start_time'),
+                    end_time=request.data.get('end_time'),
+                    is_booked=True
+                )
+
+                return Response({
+                    "message": "Rebooked successfully.",
+                    "new_slot": nearest_slot,
+                }, status=status.HTTP_200_OK)
+            else:
+                # Just refund and mark the transaction as refunded if no slot is selected
+                transaction.save()
+                return Response({
+                    "message": "Appointment cancelled and amount refunded successfully."
+                }, status=status.HTTP_200_OK)
+
+        except Transaction.DoesNotExist:
+            return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Wallet.DoesNotExist:
+            return Response({"error": "Wallet not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 class CustomPageNumberPagination(PageNumberPagination):
     page_size = 5  # Number of items per page

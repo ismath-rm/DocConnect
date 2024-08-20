@@ -141,11 +141,7 @@ function BookingDetails({ transaction_id, setWallet }) {
     return false;
   };
 
-
-
-  const isConsultancyPending = transaction && transaction.is_consultancy_completed === 'pending';
-  const isConsultancyCompleted = transaction && transaction.is_consultancy_completed === 'COMPLETED';
-  const isRefunded = transaction_id.is_consultency_completed === "REFUNDED";
+  
 
   return (
     <div>
@@ -194,33 +190,42 @@ function BookingDetails({ transaction_id, setWallet }) {
             </div>
           </div>
         </div>
+        
         <div className="flex items-center justify-between w-auto xl:w-full 2xl:w-auto space-x-4">
-          {status === "REFUNDED" ? (
-            <button className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded">
-              Refunded
-            </button>
-          ) : status !== "COMPLETED" && !isPastBooking() ? (
-            <>
-                <button
-                  onClick={() => handleOpenCancel()}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold hover:text-white py-2 px-4 rounded"
-                  disabled={status === "REFUNDED"} // Disable Cancel button if refunded
-                >
-                  Cancel
-                </button>
+  {status === "REFUNDED" ? (
+    <button className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded">
+      Refunded
+    </button>
+  ) : status === "CANCELLED" ? (
+    <button className="bg-red-500 text-white font-bold py-2 px-4 rounded" disabled>
+      Cancelled
+    </button>
+  ) : status === "COMPLETED" ? (
+    <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" disabled>
+      Completed
+    </button>
+  ) : !isPastBooking() ? (
+    <>
+      <button
+        onClick={() => handleOpenCancel()}
+        className="bg-red-500 hover:bg-red-600 text-white font-bold hover:text-white py-2 px-4 rounded"
+        disabled={status === "REFUNDED" || status === "CANCELLED" || status === "COMPLETED"} // Disable Cancel button if refunded, cancelled, or completed
+      >
+        Cancel
+      </button>
 
-                <button
-                  onClick={() => handleJoinMeeting(transaction_id)}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded"
-                  // disabled={status === "REFUNDED" || !isWithinBookingTime()} // Disable Join Call button if refunded
-                  disabled={status === "REFUNDED"} // Disable Join Call button if refunded
+      <button
+        onClick={() => handleJoinMeeting(transaction_id)}
+        className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded"
+        disabled={status === "REFUNDED" || status === "CANCELLED" || status === "COMPLETED"} // Disable Join Call button if refunded, cancelled, or completed
+      >
+        Join Call
+      </button>
+    </>
+  ) : null}
+</div>
 
-                >
-                  Join Call
-                </button>
-            </>
-          ) : null}
-        </div>
+
 
 
       </div>

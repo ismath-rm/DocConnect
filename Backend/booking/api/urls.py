@@ -53,6 +53,11 @@ urlpatterns = [
 
     path('cancel/booking/doctor/', views.cancel_booking_doctor, name='cancel-booking'),
 
+    path('api/available-slots/<str:transaction_id>/', views.available_slots, name='available-slots'),
+
+    path('api/rebook/<str:transaction_id>/', views.rebook_appointment.as_view(), name='rebook-appointment'),
+    
+
 
     # for getting the booking details for the perticular patient for Patient side listing
 

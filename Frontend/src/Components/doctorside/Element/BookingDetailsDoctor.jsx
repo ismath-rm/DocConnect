@@ -24,14 +24,10 @@ function BookindDetailsDoctor({ transaction_id }) {
   const [isMeetingAvailable, setIsMeetingAvailable] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setTransaction(transaction_id);
+  }, [transaction_id.transaction_id]);
 
-
-  useEffect(()=>{
-    setTransaction(transaction_id)
-  },[transaction_id.transaction_id])
-
-
-  
   // useEffect(() => {
   //   UserAPIwithAcess
   //     .get(`appointment/detail/transaction/${transaction_id}`, config)
@@ -65,29 +61,59 @@ function BookindDetailsDoctor({ transaction_id }) {
     setIsMeetingAvailable(meetingAvailable);
   }, [transaction]);
 
+  // const handleCancel = () => {
+  //   UserAPIwithAcess
+  //     .post(
+  //       `appointment/cancel/booking/doctor/`,
+  //       { transaction_id: transaction.transaction_id },
+  //       config
+  //     )
+  //     .then((res) => {
+  //       console.log('API Response:', res);
+  //       setTransaction((prevTransaction) => ({
+  //         ...prevTransaction,
+  //         is_consultency_completed: "REFUNDED",
+  //       }));
+
+  //       console.log(res);
+  //       setStatus("REFUNDED");
+  //       setCancel(false);
+  //       toast.success(
+  //         "Booking cancelled successfully.send mail"
+  //       );
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  // };
+
   const handleCancel = () => {
-    UserAPIwithAcess
-      .post(
-        `appointment/cancel/booking/doctor/`,
-        { transaction_id: transaction.transaction_id },
-        config
-      )
+    UserAPIwithAcess.post(
+      `appointment/cancel/booking/doctor/`,
+      { transaction_id: transaction.transaction_id },
+      config
+    )
       .then((res) => {
-        console.log('API Response:', res);
+        console.log("API Response:", res);
+
+        // Update status to "CANCELLED"
         setTransaction((prevTransaction) => ({
           ...prevTransaction,
-          is_consultency_completed: "REFUNDED",
+          is_consultency_completed: "CANCELLED",
         }));
 
-        console.log(res);
-        setStatus("REFUNDED");
-        setCancel(false);
+        setStatus("CANCELLED");
+        setCancel(false); // Close the cancellation dialog or UI element
+
+        // Notify the user that the cancellation was successful
         toast.success(
-          "Booking cancelled successfully. Amount refunded to your Patient wallet"
+          "Booking cancelled successfully and send email for a rebooking link."
         );
       })
       .catch((error) => {
-        console.log(error);
+        console.error("Error cancelling booking:", error);
+        // Optionally, show an error message to the user
+        toast.error("Failed to cancel booking. Please try again.");
       });
   };
 
@@ -104,26 +130,28 @@ function BookindDetailsDoctor({ transaction_id }) {
     navigate(`/doctor/room/${id.transaction_id}`);
   };
 
-
   const formatTime = (time) => {
-    return moment(time, 'HH:mm:ss').format('hh:mm A');
+    return moment(time, "HH:mm:ss").format("hh:mm A");
   };
 
   const formatDate = (date) => {
-    return moment(date).format('DD-MM-YYYY');
+    return moment(date).format("DD-MM-YYYY");
   };
 
   const calculateAge = (dob) => {
-    return moment().diff(moment(dob, 'YYYY-MM-DD'), 'years');
+    return moment().diff(moment(dob, "YYYY-MM-DD"), "years");
   };
 
   const isPastBooking = () => {
     if (transaction) {
       const currentDateTime = moment();
-      const bookingEndDateTime = moment(transaction.booked_to_time, 'HH:mm:ss').set({
+      const bookingEndDateTime = moment(
+        transaction.booked_to_time,
+        "HH:mm:ss"
+      ).set({
         year: moment(transaction.booked_date).year(),
         month: moment(transaction.booked_date).month(),
-        date: moment(transaction.booked_date).date()
+        date: moment(transaction.booked_date).date(),
       });
 
       return currentDateTime.isAfter(bookingEndDateTime);
@@ -131,8 +159,6 @@ function BookindDetailsDoctor({ transaction_id }) {
     return false;
   };
 
-  const isConsultancyPending = transaction && transaction.is_consultancy_completed === 'pending';
-  const isConsultancyCompleted = transaction && transaction.is_consultancy_completed === 'completed';
 
   
   return (
@@ -142,7 +168,11 @@ function BookindDetailsDoctor({ transaction_id }) {
           <div>
             <img
               className="object-cover w-full rounded-full h-48 md:h-auto md:w-48 md:rounded-none md:rounded-s-lg"
-              src={doct && doct.profile_picture ? BASE_URL.replace(/\/+$/, '') + doct.profile_picture : UserImage}
+              src={
+                doct && doct.profile_picture
+                  ? BASE_URL.replace(/\/+$/, "") + doct.profile_picture
+                  : UserImage
+              }
               alt="User"
             />
           </div>
@@ -154,7 +184,12 @@ function BookindDetailsDoctor({ transaction_id }) {
               age: {doct ? calculateAge(doct.date_of_birth) : ""}
             </p>
             <p className="mb-1 text-sm font-normal truncate text-black dark:text-black">
-              Booking Time: {transaction ? `${formatTime(transaction.booked_from_time)} - ${formatTime(transaction.booked_to_time)}` : ""}
+              Booking Time:{" "}
+              {transaction
+                ? `${formatTime(transaction.booked_from_time)} - ${formatTime(
+                    transaction.booked_to_time
+                  )}`
+                : ""}
             </p>
             <p className="text-xs font-normal truncate text-black dark:text-black">
               Date: {transaction ? formatDate(transaction.booked_date) : ""}
@@ -166,36 +201,47 @@ function BookindDetailsDoctor({ transaction_id }) {
               payment: {transaction ? transaction.status : ""}
             </p>
             <p className="mb-1 text-sm font-normal truncate text-black dark:text-black">
-              Consultancy Status: {transaction ? transaction.is_consultency_completed : ""}
+              Consultancy Status:{" "}
+              {transaction ? transaction.is_consultency_completed : ""}
             </p>
-
           </div>
         </div>
         <div className="flex items-center justify-between w-auto xl:w-full 2xl:w-auto space-x-4">
-          {status === "REFUNDED" ? (
-            <button className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded">
-              Refunded
-            </button>
-          ) : status !== "COMPLETED" && !isPastBooking() ? (
-            <>
-                <button
-                  onClick={() => handleOpenCancel()}
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold hover:text-white py-2 px-4 rounded"
-                  disabled={status === "REFUNDED"} // Disable Cancel button if refunded
-                >
-                  Cancel
-                </button>
+  {status === "CANCELLED" ? (
+    <button className="bg-red-500 text-white font-bold py-2 px-4 rounded" disabled>
+      Cancelled
+    </button>
+  ) : status === "REFUNDED" ? (
+    <button className="bg-green-500 text-white font-bold py-2 px-4 rounded" disabled>
+      Refunded
+    </button>
+  ) : status === "COMPLETED" ? (
+    <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" disabled>
+      Completed
+    </button>
+  ) : !isPastBooking() ? (
+    <>
+      <button
+        onClick={handleOpenCancel}
+        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+        disabled={status === "REFUNDED"}  // Disable if status is "REFUNDED"
+      >
+        Cancel
+      </button>
 
-                <button
-                  onClick={() => handleJoinMeeting(transaction_id)}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold hover:text-white py-2 px-4 rounded"
-                  disabled={status === "REFUNDED"} // Disable Join Call button if refunded
-                >
-                  Join Call
-                </button>
-            </>
-          ) : null}
-        </div>
+      <button
+        onClick={() => handleJoinMeeting(transaction_id)}
+        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        disabled={status === "REFUNDED"}  // Disable if status is "REFUNDED"
+      >
+        Join Call
+      </button>
+    </>
+  ) : null}
+</div>
+
+
+
       </div>
 
       {isCancelModalVisible && (

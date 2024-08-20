@@ -72,7 +72,7 @@ const UserWrapper = () => {
       {path: "/booking-details", element: <ViewBookingDetails/>},
       {path: "/room/:roomID", element: <VideoCallRoom/>},
       {path: "/about-us", element: <AboutPage/>},
-      {path: "/rebooking", element: <RebookingComponent/>},
+      {path: "/rebook/:transactionId", element: <RebookingComponent/>},
     ]
   }
 ])

@@ -6,8 +6,8 @@ import Cookies from "js-cookie";
 import { UserAPIwithAcess } from "../Api/Api";
 
 const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdvanceBooking }) => {
-  const [selectedFromDate, setSelectedFromDate] = useState(dayjs().format("DD-MM-YYYY"));
-  const [selectedToDate, setSelectedToDate] = useState(dayjs().format("DD-MM-YYYY"));
+  const [selectedFromDate, setSelectedFromDate] = useState(dayjs().format("DD/MM/YYYY"));
+  const [selectedToDate, setSelectedToDate] = useState(dayjs().format("DD/MM/YYYY"));
   const [fromTime, setFromTime] = useState(null);
   const [toTime, setToTime] = useState(null);
   const [selectedDays, setSelectedDays] = useState([]);
@@ -28,7 +28,7 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
     { label: "Sunday", value: "Sunday" },
   ];
 
-  const today = dayjs().format("DD-MM-YYYY");
+  const today = dayjs().format("DD/MM/YYYY");
 
   useEffect(() => {
     // Fetch existing time slots for the selected date range and update state
@@ -44,13 +44,15 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
 
   const handleDateChange = (e, dateType) => {
     const { value } = e.target;
+    const formattedValue = dayjs(value).format("DD/MM/YYYY");
+
     if (dateType === "from") {
-      setSelectedFromDate(value);
-      if (dayjs(value, "DD-MM-YYYY").isAfter(dayjs(selectedToDate, "DD-MM-YYYY"))) {
-        setSelectedToDate(value); // Ensure toDate is not before fromDate
+      setSelectedFromDate(formattedValue);
+      if (dayjs(value).isAfter(dayjs(selectedToDate, "DD/MM/YYYY"))) {
+        setSelectedToDate(formattedValue); // Ensure toDate is not before fromDate
       }
     } else if (dateType === "to") {
-      setSelectedToDate(value);
+      setSelectedToDate(formattedValue);
     }
   };
 
@@ -68,8 +70,8 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
     if (fromTime && toTime && selectedDays.length > 0) {
       const fromTimeFormatted = dayjs(fromTime);
       const toTimeFormatted = dayjs(toTime);
-      const selectedFromDayjs = dayjs(selectedFromDate, "DD-MM-YYYY");
-      const selectedToDayjs = dayjs(selectedToDate, "DD-MM-YYYY");
+      const selectedFromDayjs = dayjs(selectedFromDate, "DD/MM/YYYY");
+      const selectedToDayjs = dayjs(selectedToDate, "DD/MM/YYYY");
 
       const maxDateRange = 14;
       const dateRangeInDays = selectedToDayjs.diff(selectedFromDayjs, "day");
@@ -150,16 +152,16 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="date"
-            value={dayjs(selectedFromDate, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            value={dayjs(selectedFromDate, "DD/MM/YYYY").format("YYYY-MM-DD")}
             onChange={(e) => handleDateChange(e, "from")}
-            min={dayjs(today, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            min={dayjs(today, "DD/MM/YYYY").format("YYYY-MM-DD")}
             className="flex-1 border border-gray-300 rounded p-2"
           />
           <input
             type="date"
-            value={dayjs(selectedToDate, "DD-MM-YYYY").format("YYYY-MM-DD")}
+            value={dayjs(selectedToDate, "DD/MM/YYYY").format("YYYY-MM-DD")}
             onChange={(e) => handleDateChange(e, "to")}
-            min={dayjs(selectedFromDate, "DD-MM-YYYY").format("YYYY-MM-DD")} // Ensure toDate is not before fromDate
+            min={dayjs(selectedFromDate, "DD/MM/YYYY").format("YYYY-MM-DD")} // Ensure toDate is not before fromDate
             className="flex-1 border border-gray-300 rounded p-2"
           />
         </div>
