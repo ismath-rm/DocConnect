@@ -25,6 +25,8 @@ from rest_framework.filters import SearchFilter
 from django.db.models import Q
 from django.conf import settings
 from django.template.loader import render_to_string
+from decouple import config
+
 
 class  RegisterView(APIView):
     def post(self, request):
@@ -279,6 +281,7 @@ class UserProfileView(APIView):
     def get(self, request):
         user = request.user
         serializer = UserProfileSerializer(user)
+        print(config('EMAIL_HOST'))
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request):
