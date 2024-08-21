@@ -281,11 +281,14 @@ class UserProfileView(APIView):
     def get(self, request):
         user = request.user
         serializer = UserProfileSerializer(user)
-        print(config('EMAIL_HOST'))
+        
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request):
         user = request.user
+        print('hathim is here')
+        print(f'config is {config("EMAIL_HOST")}')
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
