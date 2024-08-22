@@ -10,7 +10,7 @@ if (!accessToken) {
 }
 
 export const UserImageAccess = axios.create({
-    baseURL: `${BASE_URL}`,
+    baseURL: `${process.env.VITE_BASE_URL}`,
     headers: {
       Accept: 'application/json',
       "Content-Type": "multipart/form-data",
@@ -18,7 +18,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const UserAPIwithAcess = axios.create({
-    baseURL: `${BASE_URL}`,
+    baseURL: `${process.env.VITE_BASE_URL}`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const AdminAPIwithAcess = axios.create({
-    baseURL: `${BASE_URL}`,
+    baseURL: `${process.env.VITE_BASE_URL}`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -34,7 +34,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const AdminDashBoardAPI = axios.create({
-    baseURL: `${BASE_URL}appointment/api/admin-transactions/`,
+    baseURL: `${process.env.VITE_BASE_URL}appointment/api/admin-transactions/`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",
