@@ -10,7 +10,7 @@ if (!accessToken) {
 }
 
 export const UserImageAccess = axios.create({
-    baseURL: `${process.env.VITE_BASE_URL}`,
+    baseURL: `https://backend.footvibe.store/`,
     headers: {
       Accept: 'application/json',
       "Content-Type": "multipart/form-data",
