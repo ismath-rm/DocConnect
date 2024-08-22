@@ -18,7 +18,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const UserAPIwithAcess = axios.create({
-    baseURL: `${process.env.VITE_BASE_URL}`,
+    baseURL: `https://backend.footvibe.store/`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const AdminAPIwithAcess = axios.create({
-    baseURL: `${process.env.VITE_BASE_URL}`,
+    baseURL: `https://backend.footvibe.store/`,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -34,7 +34,7 @@ export const UserImageAccess = axios.create({
   });
 
   export const AdminDashBoardAPI = axios.create({
-    baseURL: `${process.env.VITE_BASE_URL}appointment/api/admin-transactions/`,
+    baseURL: `https://backend.footvibe.store/appointment/api/admin-transactions/`,
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",
