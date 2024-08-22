@@ -1,1 +1,1 @@
- export const BASE_URL= process.env.VITE_BASE_URL
+ export const BASE_URL= 'https://backend.footvibe.store' 

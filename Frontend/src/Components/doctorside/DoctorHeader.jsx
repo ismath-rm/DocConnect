@@ -28,7 +28,7 @@ const DoctorHeader = () => {
     console.log("custom id in notification:", customId);
     try {
       const response = await axios.get(
-        `${BASE_URL}notification/notifications/doctor/${customId}/`
+        `notification/notifications/doctor/${customId}/`
       );
       setNotification(response.data.notifications);
     } catch (error) {
@@ -38,7 +38,7 @@ const DoctorHeader = () => {
 
   useEffect(() => {
     if (user_id) {
-      axios.get(`${BASE_URL}auth/custom-id/doctor/${user_id}`).then((res) => {
+      axios.get(`auth/custom-id/doctor/${user_id}`).then((res) => {
         const customId = res.data.doctor_user.custom_id;
         fetchData(customId);
         setCustomID(customId);
