@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { BASE_URL } from '../../utils/constants/Constants';
-import { UserAPIwithAcess } from "../Api/Api";
 
 const UserRegister = () => {
   const [Data, setData] = useState({
@@ -61,7 +60,7 @@ const UserRegister = () => {
       console.log(userData)
 
       try {
-        const response = await UserAPIwithAcess.post('auth/signup/', userData);
+        const response = await axios.post(BASE_URL + 'auth/signup/', userData);
         toast.success('Registration successful');
         setTimeout(() => {
           toast.success('OTP has been sent to your email, please check');

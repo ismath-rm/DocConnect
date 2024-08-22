@@ -159,7 +159,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
 
         // If the slot is available, proceed with creating the order
         console.log("Creating order with amount:", fees);
-        return UserAPIwithAcess.post(`appointment/create-order/`, {
+        return UserAPIwithAcess.post(`${BASE_URL}appointment/create-order/`, {
           
           amount: fees,
           currency: "INR",
