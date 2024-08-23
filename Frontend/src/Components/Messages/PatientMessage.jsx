@@ -72,7 +72,7 @@ const PatientChatComponent = () => {
         console.log('hey this is the appointment id page');
         if (!appointmentId) return;
         console.log("Hi this is the websocket component", appointmentId);
-        const newClient = new W3CWebSocket(
+        const newClient = new WebSocket(
           `https://backend.footvibe.store/ws/chat/${appointmentId}/`
         );
         setClient(newClient);
