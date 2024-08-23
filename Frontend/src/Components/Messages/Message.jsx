@@ -71,7 +71,7 @@ const ChatComponent = () => {
         if (!appointmentId) return;
 
         const newClient = new W3CWebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
-        setClient(newClient);
+        setClient(newClient);       
         console.log('SET CLIENT:', newClient);
 
         newClient.onopen = () => {
