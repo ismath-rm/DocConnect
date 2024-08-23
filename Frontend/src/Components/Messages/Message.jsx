@@ -70,7 +70,7 @@ const ChatComponent = () => {
     const connectToWebSocket = (appointmentId) => {
         if (!appointmentId) return;
         console.log("We udiiiiiii", appointmentId)
-        const newClient = new W3CWebSocket(`https://backend.footvibe.store/ws/chat/${appointmentId}/`);
+        const newClient = new WebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
         setClient(newClient);       
         console.log('SET CLIENT:', newClient);
 

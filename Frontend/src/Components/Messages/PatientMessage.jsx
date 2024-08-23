@@ -67,65 +67,63 @@ const PatientChatComponent = () => {
     }, []);
 
     const connectToWebSocket = (appointmentId) => {
-        console.log(appointmentId);
-        setChatMessages([])
-        console.log('hey this is the appointment id page');
-        if (!appointmentId) return;
-        console.log("Hi this is the websocket component", appointmentId);
-        const newClient = new WebSocket(
-          `https://backend.footvibe.store/ws/chat/${appointmentId}/`
-        );
-        setClient(newClient);
+      console.log(appointmentId);
+      setChatMessages([]);
+      console.log("hey this is the appointment id page");
+      if (!appointmentId) return;
+      console.log("Hi this is the websocket component");
+      const newClient = new WebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
+      setClient(newClient);
 
-        newClient.onopen = () => {
-            console.log("WebSocket Client Connected");
-        };
+      newClient.onopen = () => {
+        console.log("WebSocket Client Connected");
+      };
 
-        newClient.onmessage = (message) => {
-            console.log(message);
-            const data = JSON.parse(message.data);
-            setChatMessages((prevMessages) => [...prevMessages, data]);
-        };
-        const fetchExistingMessages = async () => {
-            try {
-                const response = await fetch(
-                    `${BASE_URL}chat/chat-messages/transaction/${appointmentId}/`
-                );
+      newClient.onmessage = (message) => {
+        console.log(message);
+        const data = JSON.parse(message.data);
+        setChatMessages((prevMessages) => [...prevMessages, data]);
+      };
+      const fetchExistingMessages = async () => {
+        try {
+          const response = await fetch(
+            `${BASE_URL}chat/chat-messages/transaction/${appointmentId}/`
+          );
 
-                if (!response.ok) {
-                    console.error(
-                        "Error fetching existing messages. Status:",
-                        response.status
-                    );
-                    return;
-                }
+          if (!response.ok) {
+            console.error(
+              "Error fetching existing messages. Status:",
+              response.status
+            );
+            return;
+          }
 
-                const data = await response.json();
+          const data = await response.json();
 
-                const messagesTextArray = data.map((item) => ({
-                    message: item.message,
-                    sendername: item.sendername,
-                }));
+          const messagesTextArray = data.map((item) => ({
+            message: item.message,
+            sendername: item.sendername,
+          }));
 
-                setChatMessages(messagesTextArray);
-                console.log("Chat messages:", messagesTextArray);
-            } catch (error) {
-                console.error("Error fetching existing messages:", error);
-            }
-        };
+          setChatMessages(messagesTextArray);
+          console.log("Chat messages:", messagesTextArray);
+        } catch (error) {
+          console.error("Error fetching existing messages:", error);
+        }
+      };
 
-        fetchExistingMessages();
+      fetchExistingMessages();
 
-        return () => {
-            newClient.close();
-        };
+      return () => {
+        newClient.close();
+      };
     };
 
     const handleAppointmentClick = (booking) => {
-        connectToWebSocket(booking.transaction_id);
-        setSelectedAppointment(booking);
-        console.log();
-        setChatMessages([]);
+      setSelectedAppointment(booking);
+      console.log();
+      setChatMessages([]);
+      connectToWebSocket(booking.transaction_id);
     };
 
     const sendMessage = () => {
