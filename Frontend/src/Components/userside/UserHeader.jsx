@@ -113,7 +113,7 @@ import { toast } from "react-toastify";
 import NotificationIcon from "../Notification/NotificationIcon";
 import NotificationModal from "../Notification/NotificationModal";
 import axios from "axios";
-import { BASE_URL } from "../../utils/constants/Constants";
+import { BASE_URL, WEBSOCKET } from "../../utils/constants/Constants";
 import { Link } from "react-router-dom";
 
 const UserHeader = () => {
@@ -152,7 +152,7 @@ const UserHeader = () => {
         setCustomID(customId);
 
         if (!socket) {
-          const wsURL = `ws://127.0.0.1:8000/ws/notification/patient/${customId}/`;
+          const wsURL = `${WEBSOCKET}ws/notification/patient/${customId}/`;
         
           const newSocket = new WebSocket(wsURL);
           setSocket(newSocket);

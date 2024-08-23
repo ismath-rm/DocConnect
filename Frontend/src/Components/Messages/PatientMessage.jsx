@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import "./ChatComponent.css";
 import { BASE_URL } from "../../utils/constants/Constants";
+import { WEBSOCKET } from "../../utils/constants/Constants";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import UserImage from '../../assets/images/user.jpg'
@@ -72,7 +73,7 @@ const PatientChatComponent = () => {
         if (!appointmentId) return;
 
         const newClient = new W3CWebSocket(
-            `ws://127.0.0.1:8000/ws/chat/${appointmentId}/`
+            `${WEBSOCKET}ws/chat/${appointmentId}/`
         );
         setClient(newClient);
 

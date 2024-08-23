@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import NotificationIcon from "../Notification/NotificationIcon";
 import NotificationModal from "../Notification/NotificationModal";
 import axios from "axios";
-import { BASE_URL } from "../../utils/constants/Constants";
+import { BASE_URL, WEBSOCKET } from "../../utils/constants/Constants";
 
 const DoctorHeader = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -45,7 +45,7 @@ const DoctorHeader = () => {
 
         if (!socket) {
           // Only create a new WebSocket if one doesn't already exist
-          const wsURL = `ws://127.0.0.1:8000/ws/notification/doctor/${customId}/`;
+          const wsURL = `${WEBSOCKET}ws/notification/doctor/${customId}/`;
           const newSocket = new WebSocket(wsURL);
           setSocket(newSocket);
 
