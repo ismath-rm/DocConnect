@@ -73,7 +73,7 @@ const PatientChatComponent = () => {
         if (!appointmentId) return;
 
         const newClient = new W3CWebSocket(
-            `${WEBSOCKET}ws/chat/${appointmentId}/`
+          `ws://backend.footvibe.store/ws/chat/${appointmentId}/`
         );
         setClient(newClient);
 
