@@ -69,8 +69,8 @@ const ChatComponent = () => {
 
     const connectToWebSocket = (appointmentId) => {
         if (!appointmentId) return;
-
-        const newClient = new W3CWebSocket(`${BASE_URL}ws/chat/${appointmentId}/`);
+        console.log("We udiiiiiii", appointmentId)
+        const newClient = new W3CWebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
         setClient(newClient);       
         console.log('SET CLIENT:', newClient);
 
@@ -86,7 +86,7 @@ const ChatComponent = () => {
 
         const fetchExistingMessages = async () => {
             try {
-                const response = await fetch(`${baseUrl}chat/chat-messages/transaction/${appointmentId}/`);
+                const response = await fetch(`${BASE_URL}chat/chat-messages/transaction/${appointmentId}/`);
                 const data = await response.json();
                 console.log('data:', data);
                 const messagesTextArray = data.map((item) => ({
