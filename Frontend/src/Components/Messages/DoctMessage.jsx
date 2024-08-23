@@ -48,8 +48,7 @@ const DoctorChatComponent = () => {
   };
 
   const fetchDoctorID = (id) => {
-    UserAPIwithAcess
-      .get(BASE_URL + `0auth/custom-id/doctor/${id}`, config)
+    UserAPIwithAcess.get(BASE_URL + `auth/custom-id/doctor/${id}`, config)
       .then((res) => {
         setdoct(res.data);
         console.log(res.data.doctor_user.custom_id);
