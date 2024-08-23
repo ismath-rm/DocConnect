@@ -4,7 +4,7 @@ import './ChatComponent.css';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl } from '../../utils/constants/Constants';
+import { baseUrl, WEBSOCKET } from '../../utils/constants/Constants';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { UserAPIwithAcess } from '../API/AdminAPI';
@@ -70,7 +70,7 @@ const ChatComponent = () => {
     const connectToWebSocket = (appointmentId) => {
         if (!appointmentId) return;
 
-        const newClient = new W3CWebSocket(`wss://DocConnect.cloud/ws/chat/${appointmentId}/`);
+        const newClient = new W3CWebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
         setClient(newClient);
         console.log('SET CLIENT:', newClient);
 
