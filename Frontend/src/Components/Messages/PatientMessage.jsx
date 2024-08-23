@@ -122,10 +122,10 @@ const PatientChatComponent = () => {
     };
 
     const handleAppointmentClick = (booking) => {
+        connectToWebSocket(booking.transaction_id);
         setSelectedAppointment(booking);
         console.log();
         setChatMessages([]);
-        connectToWebSocket(booking.transaction_id);
     };
 
     const sendMessage = () => {
