@@ -724,7 +724,7 @@ def cancel_booking_doctor(request):
                     print("Transaction status updated to CANCELLED.")
 
                     # Generate rebooking link using transaction ID or a similar identifier
-                    rebooking_link = f"{settings.FRONTEND_URL}/rebook/{transaction_id}/"
+                    rebooking_link = f"{settings.FRONTEND_URL}rebook/{transaction_id}/"
                     print("Rebooking link generated:", rebooking_link)
 
                     # Construct email message for rebooking
