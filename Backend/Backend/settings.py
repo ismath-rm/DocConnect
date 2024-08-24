@@ -117,7 +117,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],
         },
-    },
+    },  
 }
 
 
@@ -238,4 +238,4 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = config('FRONTEND_URL')
