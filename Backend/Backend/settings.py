@@ -111,14 +111,23 @@ DATABASES = {
 #     },
 # }
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+USE_IN_MEMORY_REDIS = os.getenv('USE_IN_MEMORY_REDIS', 'False') == 'True'
+
+if USE_IN_MEMORY_REDIS:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
         },
-    },  
-}
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [('127.0.0.1', 6379)],
+            },
+        },  
+    }
 
 
 
