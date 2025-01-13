@@ -137,8 +137,9 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         }
       })
       .catch((error) => {
-        console.log('this is the errror');
-        console.log(error);
+        console.log("this is the errror");
+        // console.log(error);
+        console.log(error.response ? error.response.data : error.message);
       });
   };
 
@@ -161,7 +162,8 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         console.log("Creating order with amount:", fees);
         return UserAPIwithAcess.post(`${BASE_URL}appointment/create-order/`, {
           
-          amount: fees,
+          // amount: fees,
+          amount: parseInt(fees, 10), // Convert `fees` to an integer
           currency: "INR",
           
           // Add any other relevant data for creating the order
@@ -172,7 +174,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
 
         // Configure Razorpay options
         const options = {
-          key: "rzp_test_GJppfEzteBKRSe", // Enter the Key ID generated from the Dashboard
+          key: "rzp_test_8XSNvVIgMjtH1b", // Enter the Key ID generated from the Dashboard
           name: "DocConnect",
           description: "Test Transaction",
           image: "https://example.com/your_logo",

@@ -1,108 +1,3 @@
-// import React, { useState } from 'react';
-// import Logo from '../../assets/logo.png';
-// import { NavLink, useNavigate } from 'react-router-dom';
-// import Cookies from 'js-cookie';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { set_Authentication } from '../../Redux/authentication/authenticationSlice';
-// import { toast } from "react-toastify";
-
-// const UserHeader = () => {
-//     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-//     const accessTocken = Cookies.get('access');
-//     const navigate = useNavigate();
-//     const dispatch = useDispatch();
-
-//     const authenticationUser = useSelector((state) => state.authentication_user);
-//     const { isAuthenticated, name } = authenticationUser || {};
-
-//     const handleLogOut = () => {
-//         Cookies.remove('access');
-//         Cookies.remove('refresh');
-
-//         dispatch(
-//             set_Authentication({
-//                 name: null,
-//                 isAuthenticated: false,
-//                 isAdmin: false,
-//                 is_doctor: false,
-//                 user_id: null
-//             })
-//         );
-//         toast.success('Logged out successfully');
-//         navigate('/');
-//     };
-
-//     return (
-//         <nav className="flex justify-between items-center py-4 bg-white/80 backdrop-blur-md shadow-md w-full px-10">
-//             {/* Logo Container */}
-//             <div className="flex items-center">
-//                 <NavLink to="/" className="cursor-pointer">
-//                     <img className="h-10 w-auto" src={Logo} alt="Store Logo" />
-//                 </NavLink>
-//             </div>
-
-//             {/* Links Section - Hidden on Small Screens */}
-//             <div className="items-center hidden space-x-8 lg:flex">
-//                 <NavLink to="/" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Home</NavLink>
-//                 <NavLink to="/doctor-list" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Find Doctor</NavLink>
-//                 <NavLink to="/about-us" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">About Us</NavLink>
-//                 {/* <NavLink to="/contact-us" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Contact Us</NavLink> */}
-//                 {isAuthenticated ? (
-//                     <>
-//                         <NavLink to="/booking-details" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Bookings</NavLink>
-//                         <NavLink to="/profile" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">My Profile</NavLink>
-//                         <NavLink to="/user-chat" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Messages</NavLink>
-//                         <button onClick={handleLogOut} className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Logout</button>
-//                     </>
-//                 ) : (
-//                     <>
-//                         <NavLink to="/auth/login" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Login</NavLink>
-//                         <NavLink to="/auth/signup" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Register</NavLink>
-//                     </>
-//                 )}
-//             </div>
-
-//             {/* Hamburger Icon for Small Screens */}
-//             <div className="lg:hidden mt-1">
-//                 <button
-//                     className="text-gray-600 hover:text-blue-500 focus:outline-none focus:text-blue-500 transition-colors duration-300"
-//                     onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-//                 >
-//                     ☰
-//                 </button>
-//             </div>
-
-//             {/* Mobile Menu Dropdown */}
-//             {isMobileMenuOpen && (
-//                 <div className="lg:hidden w-full mt-4">
-//                     <div className="flex flex-col space-y-5">
-//                         <NavLink to="/" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Home</NavLink>
-//                         <NavLink to="/doctor-list" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Find Doctor</NavLink>
-//                         <NavLink to="/about-us" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>About Us</NavLink>
-//                         {/* <NavLink to="/contact-us" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Contact Us</NavLink> */}
-//                         {isAuthenticated ? (
-//                             <>
-//                                 <NavLink to="/booking-details" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Bookings</NavLink>
-//                                 <NavLink to="/profile" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>My Profile</NavLink>
-//                                 <NavLink to="/user-chat" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Messages</NavLink>
-//                                 <button onClick={handleLogOut} className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold">Logout</button>
-//                             </>
-//                         ) : (
-//                             <>
-//                                 <NavLink to="/auth/login" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Login</NavLink>
-//                                 <NavLink to="/auth/signup" className="text-gray-800 hover:text-blue-500 transition-colors duration-300 font-bold" onClick={() => setMobileMenuOpen(false)}>Register</NavLink>
-//                             </>
-//                         )}
-//                     </div>
-//                 </div>
-//             )}
-//         </nav>
-//     );
-// };
-
-// export default UserHeader;
-
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -141,19 +36,19 @@ const UserHeader = () => {
   };
 
   useEffect(() => {
-    console.log('hey thisiswhat is was talking about');
-    
+    console.log("hey this is what is was talking about user side");
+
     if (user_id) {
       axios.get(`${BASE_URL}auth/custom-id/patient/${user_id}`).then((res) => {
         console.log(res);
-        
+
         const customId = res.data.id;
         fetchNotifications(customId);
         setCustomID(customId);
 
         if (!socket) {
           const wsURL = `${WEBSOCKET}ws/notification/patient/${customId}/`;
-        
+
           const newSocket = new WebSocket(wsURL);
           setSocket(newSocket);
 
@@ -377,8 +272,7 @@ const UserHeader = () => {
       <NotificationModal
         isOpen={isNotificationModalOpen}
         data={notifications}
-        customID = {user_id}
-
+        customID={user_id}
       />
     </nav>
   );

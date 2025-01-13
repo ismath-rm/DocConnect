@@ -724,7 +724,14 @@ def cancel_booking_doctor(request):
                     print("Transaction status updated to CANCELLED.")
 
                     # Generate rebooking link using transaction ID or a similar identifier
-                    rebooking_link = f"{settings.FRONTEND_URL}rebook/{transaction_id}/"
+                    # rebooking_link = f"{settings.FRONTEND_URL}rebook/{transaction_id}/"
+                    # print("Rebooking link generated:", rebooking_link)
+
+                    frontend_url = settings.FRONTEND_URL
+                    if not frontend_url.endswith('/'):
+                        frontend_url += '/'
+
+                    rebooking_link = f"{frontend_url}rebook/{transaction_id}/"
                     print("Rebooking link generated:", rebooking_link)
 
                     # Construct email message for rebooking
@@ -882,6 +889,63 @@ def available_slots(request, transaction_id):
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
+# class rebook_appointment(APIView):
+#     def post(self, request, transaction_id):
+#         try:
+#             # Fetch the transaction
+#             transaction = Transaction.objects.get(transaction_id=transaction_id)
+#             user = User.objects.get(id=transaction.patient_id)
+#             wallet = Wallet.objects.get(patient=user)
+
+#             # Refund the amount
+#             refund_amount = Decimal(transaction.amount)
+#             wallet.balance += refund_amount
+#             wallet.save()
+
+#             # Update transaction to indicate cancellation and refund
+#             transaction.is_refunded = True
+
+#             nearest_slot = request.data.get("id")
+            
+#             if nearest_slot:
+#                 # Proceed with rebooking if slot details are provided
+#                 transaction.booked_date = request.data.get('day')
+#                 transaction.booked_from_time = request.data.get('start_time')
+#                 transaction.booked_to_time = request.data.get('end_time')
+#                 transaction.is_consultency_completed = Transaction.STATUS_CHOICES[0][0]
+#                 transaction.save()
+
+#                 # Update the doctor's availability to reflect the new booking
+#                 DoctorAvailability.objects.create(
+#                     doctor_id=transaction.doctor_id,
+#                     day=request.data.get('day'),
+#                     start_time=request.data.get('start_time'),
+#                     end_time=request.data.get('end_time'),
+#                     is_booked=True
+#                 )
+
+#                 return Response({
+#                     "message": "Rebooked successfully.",
+#                     "new_slot": nearest_slot,
+#                 }, status=status.HTTP_200_OK)
+#             else:
+#                 # Just refund and mark the transaction as refunded if no slot is selected
+#                 transaction.save()
+#                 return Response({
+#                     "message": "Appointment cancelled and amount refunded successfully."
+#                 }, status=status.HTTP_200_OK)
+
+#         except Transaction.DoesNotExist:
+#             return Response({"error": "Transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except Wallet.DoesNotExist:
+#             return Response({"error": "Wallet not found."}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 class rebook_appointment(APIView):
     def post(self, request, transaction_id):
         try:
@@ -908,14 +972,25 @@ class rebook_appointment(APIView):
                 transaction.is_consultency_completed = Transaction.STATUS_CHOICES[0][0]
                 transaction.save()
 
-                # Update the doctor's availability to reflect the new booking
-                DoctorAvailability.objects.create(
+                # Check for existing availability
+                existing_availability = DoctorAvailability.objects.filter(
                     doctor_id=transaction.doctor_id,
                     day=request.data.get('day'),
                     start_time=request.data.get('start_time'),
-                    end_time=request.data.get('end_time'),
-                    is_booked=True
-                )
+                    end_time=request.data.get('end_time')
+                ).first()
+
+                if existing_availability:
+                    existing_availability.is_booked = True
+                    existing_availability.save()
+                else:
+                    DoctorAvailability.objects.create(
+                        doctor_id=transaction.doctor_id,
+                        day=request.data.get('day'),
+                        start_time=request.data.get('start_time'),
+                        end_time=request.data.get('end_time'),
+                        is_booked=True
+                    )
 
                 return Response({
                     "message": "Rebooked successfully.",
@@ -936,6 +1011,7 @@ class rebook_appointment(APIView):
             return Response({"error": "Wallet not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 

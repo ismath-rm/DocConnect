@@ -38,6 +38,7 @@ const DoctorHeader = () => {
 
   useEffect(() => {
     if (user_id) {
+      console.log("Fetching custom ID for user_id:", user_id);
       axios.get(`auth/custom-id/doctor/${user_id}`).then((res) => {
         const customId = res.data.doctor_user.custom_id;
         fetchData(customId);

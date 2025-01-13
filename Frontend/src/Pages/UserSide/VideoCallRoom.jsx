@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode"; // Correct import
+import { jwtDecode } from "jwt-decode"; 
 import { useParams, useNavigate } from "react-router-dom";
 import { UserAPIwithAcess } from '../../Components/Api/Api';
 import axios from 'axios';
@@ -20,12 +20,12 @@ function VideoCallRoom() {
     const initializeMeeting = async () => {
       try {
         if (!roomID || !userID || !userName) {
-          console.error("Missing required parameters");
+          console.error("Missing required parameters", { roomID, userID, userName });
           return;
         }
 
-        const appID = 659957452;
-        const serverSecret = "e6d8104d69b68e69ada460315e94abf7";
+        const appID = 1103583712;
+        const serverSecret = "2094914653d9d2520bb469b051f69377";
         const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
           appID,
           serverSecret,

@@ -22,8 +22,8 @@ function DoctorVideoCallRoom() {
 
   const myMeeting = async (element) => {
     // generate Kit Token
-    const appID = 659957452;
-    const serverSecret = "e6d8104d69b68e69ada460315e94abf7";
+    const appID = 1103583712;
+    const serverSecret = "2094914653d9d2520bb469b051f69377";
     const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
       appID,
       serverSecret,
