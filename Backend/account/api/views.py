@@ -75,7 +75,6 @@ class  RegisterView(APIView):
                 fail_silently=False,
                 )
         except Exception as e:
-            print("**********************8")
             print("Error sending email: ", e)
             raise
 
@@ -89,7 +88,6 @@ class  RegisterView(APIView):
                 timestamp=datetime.now(),
             )
         except Exception as e:
-            print("**********************8")
             print("It's: ", e)
             raise
         otp_instance.save()
@@ -170,7 +168,6 @@ class UserLogin(APIView):
 
         refresh["first_name"] = str(user.first_name)
         # refresh["is_admin"] = str(user.is_superuser)
-        print("Ddddddddddddddddddddddddddd")
 
         content = {
             'refresh': str(refresh),
@@ -287,7 +284,6 @@ class UserProfileView(APIView):
 
     def put(self, request):
         user = request.user
-        print('hathim is here')
         print(f'config is {config("EMAIL_HOST")}')
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
@@ -332,8 +328,6 @@ class VarificationDoctorView(generics.RetrieveUpdateAPIView):
         print('user_id is :',user_id)
 
         user_verification = get_object_or_404(Verification, user__id=user_id)
-        print('heheheheheheheheheheheheh',user_verification)
-        print ('user_verification is :',user_verification   )
         return Verification.objects.filter(user=user_verification.user)
     
 
@@ -368,7 +362,6 @@ class PatientUseDetailsUpdate(generics.ListAPIView):
 
 class UserDetailsUpdate(generics.ListAPIView):
     queryset = User.objects.filter(user_type='doctor')
-    # print('i can do it',queryset)
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = UserDetailsUpdateSerializer
