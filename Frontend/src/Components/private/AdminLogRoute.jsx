@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import isAuthAdmin from '../../utils/isAuthAdmin';
-import { toast } from 'react-toastify';
 import Loader from '../loader/Loader';
 
 
@@ -38,7 +37,7 @@ function AdminLogRoute({ children }) {
     return <Navigate to="/admincontrol/" />;
   }
 
-  // If authenticated, render the child components
+ 
   return children;
 }
 

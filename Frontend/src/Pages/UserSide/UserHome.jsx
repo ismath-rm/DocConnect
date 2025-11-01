@@ -1,4 +1,3 @@
-import React from 'react'
 import FAQSection from '../../Components/userside/Element/FaqSection'
 import BannerSection from '../../Components/Banner/User/BannerSection'
 import Appointment from '../../Components/userside/Element/Appointment'

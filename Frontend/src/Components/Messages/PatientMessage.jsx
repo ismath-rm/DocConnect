@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { useState, useEffect, useRef } from "react";
 import "./ChatComponent.css";
 import { BASE_URL } from "../../utils/constants/Constants";
 import { WEBSOCKET } from "../../utils/constants/Constants";
@@ -163,24 +162,7 @@ const PatientChatComponent = () => {
                 <div className="container p-0"></div>
                 <div className="card">
                     <div className="row g-0">
-                        {/* <div className="col-12 col-lg-5 col-xl-3 border-right">
-                      <div className="px-4 ">
-                          <div className="d-flfex align-itemfs-center">
-                            <div className="flex-grow-1 d-flex align-items-center mt-2">
-                              <input
-                                type="text"
-                                className="form-control my-3"
-                                placeholder="Search..."
-                                onChange=''
-                                name='username'
-        
-                              />
-                              <button className='ml-2' onClick=''style={{border:"none", borderRadius:"50%"}}><i className='fas fa-search'></i></button>
-                            </div>
-                          </div>
-                      </div>
-                    </div> */}
-
+                        
                         <div className="chat-container">
                             <div className="appointments-list ">
                                 <h2>Chats</h2>
@@ -231,8 +213,7 @@ const PatientChatComponent = () => {
                                                 }
                                                 alt={selectedAppointment.doctor_name}
                                                 className="rounded-circle-chat mr-1"
-                                            // width={40}
-                                            // height={40}
+                                            
                                             />
                                             <div className="flex-grow-1 mr-3">
                                                 <div className="small ">

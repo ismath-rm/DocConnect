@@ -44,9 +44,9 @@ const DoctorWrapper = () => {
       element:(
         <>
         <DoctorHeader/>
-        {/* <DoctorPrivateRoute> */}
+       
           <Outlet/>
-        {/* </DoctorPrivateRoute> */}
+    
         <DoctorFooter/>
         </>
       ),

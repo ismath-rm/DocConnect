@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { UserAPIwithAcess } from "../../../Api/Api";
@@ -68,21 +68,21 @@ function EditPatient({ doctorId, setIsDataFetched, setEditModalVisible }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Create a FormData object
+    
     const formData = new FormData();
 
-    // Append editable user data to the form data
+  
     const editableFields = ["is_id_verified", "is_email_verified", "is_active"];
     editableFields.forEach((key) => {
       formData.append(key, user[key]);
     });
 
-    // Debugging: Check the formData contents
+    
     for (let pair of formData.entries()) {
       console.log(pair[0] + ", " + pair[1]);
     }
     
-    // Make the API request
+   
     UserAPIwithAcess
       .patch(`auth/admin/patient/${doctorId}`, formData, config)
       .then((res) => {
@@ -121,7 +121,7 @@ function EditPatient({ doctorId, setIsDataFetched, setEditModalVisible }) {
           </h3>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-6 gap-6">
-              {/* Display Blood Group */}
+             
               <div className="col-span-6 sm:col-span-3">
                 <label
                   htmlFor="blood_group"

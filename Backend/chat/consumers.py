@@ -1,15 +1,10 @@
-
 import django
 django.setup()
 import json
 from account.models import *
 from channels.generic.websocket import AsyncWebsocketConsumer
-from asgiref.sync import sync_to_async
-from django.utils.timesince import timesince
-
 from .models import *
 from booking.models import *
-from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
 
 
@@ -18,22 +13,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
     appointment=None
 
     async def connect(self):
-        print("checking the connection")
         self.transaction_id = self.scope['url_route']['kwargs']['appointment_id']
         self.appointment = await self.get_appointment_instance(self.transaction_id)
-        print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj",self.appointment,self.transaction_id)
         await self.channel_layer.group_add(
             f'chat_{self.transaction_id}',
             self.channel_name
         )
 
         await self.accept()
-        
-        # Fetch existing messages and send them to the connected client
+    
         existing_messages = await self.get_existing_messages()
-        print(existing_messages)
         for message in existing_messages:
-            print(message)
             await self.send(text_data=json.dumps({
                 'message': message['message'],
                 'sendername': message.get('sendername'),
@@ -41,7 +31,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_existing_messages(self):
-        # Assuming you have a ChatMessage model with a 'message' field
         messages = ChatMessage.objects.filter(appointment=self.appointment)
         return [{'message': message.message,'sendername':message.sendername} for message in messages]
 
@@ -90,14 +79,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_appointment_instance(self, transaction_id):
         try:
             appointment = Transaction.objects.get(transaction_id=transaction_id)
-            print('Appointment instance:', appointment.patient_id)
             return appointment
         except Transaction.DoesNotExist:
             print("Failed to find the appointment")
 
     async def save_message(self, sendername, message):
-        print(self.appointment.patient_id)
-        print(self.appointment.doctor_id)
+        
         if self.appointment:
             sender = await self.get_user_instance(self.appointment.patient_id)
             receiver = await self.get_order_instance(self.appointment.doctor_id)
@@ -117,7 +104,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 appointment=self.appointment,
                 sendername=sendername
             )
-            print("Message saved to database.")
+        
         else:
             print("Sender is None. Message not saved.")
 
@@ -126,7 +113,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_user_instance(self, user_id):
         try:
             user = User.objects.get(id=user_id)
-            print('User instance:', user)
             return user
         except User.DoesNotExist:
             print("Failed to find the user")

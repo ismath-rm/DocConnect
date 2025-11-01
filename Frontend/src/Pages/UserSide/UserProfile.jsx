@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import UserImage from '../../assets/images/user.jpg';
 import { BASE_URL } from '../../utils/constants/Constants'
@@ -54,7 +54,7 @@ const UserProfile = () => {
     try {
       const response = await axios.get(BASE_URL + 'auth/user/details/', config);
       const userData = response.data;
-      console.log('userdata:', userData);
+  
       setProfile({
         username: userData.username,
         firstName: userData.first_name,
@@ -71,13 +71,7 @@ const UserProfile = () => {
         blood_group: userData.blood_group,
       });
 
-      console.log('profile pic is updated', userData.profile_picture);
-      console.log('User ID for wallet:', userData.id);
-
       fetctWallet(userData.id);
-      console.log('fetctWallet:', fetctWallet);
-      console.log('custom_id:', userData.id);
-
 
     } catch (error) {
       console.error('Error fetching user details:', error);
@@ -87,22 +81,18 @@ const UserProfile = () => {
 
   const [wallet, setWallet] = useState('');
 
-  // ........................... fetch Wallet data........................................................
 
   const fetctWallet = (custom_id) => {
-    console.log('the id is in fetchwallet:', custom_id);
+    
     UserAPIwithAcess.get(`auth/wallet/amount/${custom_id}`, config)
       .then((res) => {
-        console.log('API response:', res);
-        console.log('API response data:', res.data);
-        console.log('Wallet balance:', res.data.balance);
         setWallet(res.data.balance);
         console.log(res.data.balance);
       })
       .catch((error) => {
         if (error.response && error.response.status === 404) {
           console.log('Wallet not found, setting balance to 0');
-          setWallet(0); // Set default value to 0 if wallet not found
+          setWallet(0);
         } else {
           console.error('Error fetching wallet data:', error);
         }
@@ -125,12 +115,9 @@ const UserProfile = () => {
       }
     }).then(response => {
       setProfile((res) => ({ ...res, profile: response.data.profile_picture }));
-      console.log(response.data.profile_picture);
-      console.log('it displaying');
       toast.success('Profile picture updated successfully');
     }).catch(error => {
       toast.error('Error updating profile picture');
-      console.error('Error updating profile picture:', error);
     });
   };
 
@@ -211,7 +198,6 @@ const UserProfile = () => {
         })
         .catch(error => {
           toast.error('Error updating profile');
-          console.error('Error updating profile:', error);
         });
     } else {
       toast.error('Please fill out the form correctly.');
@@ -227,7 +213,6 @@ const UserProfile = () => {
         <div className="relative">
           <img
             className="rounded-full w-24 h-24 object-cover"
-            // src={profile.profile ? BASE_URL + profile.profile : UserImage}
             src={profile.profile ? `${BASE_URL.replace(/\/+$/, '')}${profile.profile}` : UserImage}
             alt="Profile"
           />

@@ -37,19 +37,19 @@ urlpatterns = [
 
     path("admin/doctor/verication/list/", views.AdminDoctorApprovalListView.as_view(), name="admin-verification-doctor-list"),
 
-      # for verification file for admin
+    
 
     path('admin/verification/doctor/<str:user__id>/', views.AdminDocVerificationView.as_view(), name='admin-verification-doctor'),
 
-    # for getting the patient cusom id using user id
+
 
     path("custom-id/patient/<str:pk>",views.PatientCustomIdView.as_view(),name="custom-id-patient"),
 
-    # for getting the Doctor cusom id using user id
+    
 
     path("custom-id/doctor/<str:pk>",views.DoctorCustomIdView.as_view(),name="custom-id-doctor"),
 
-    # for getting the patient wallet amount
+    
     path("wallet/amount/<str:patient_id>", views.WalletAmountView.as_view(), name="wallet-amount"),
 
 

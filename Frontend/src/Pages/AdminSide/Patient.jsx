@@ -31,14 +31,11 @@ function Patient() {
         AdminAPIwithAcess
             .patch(BASE_URL + `auth/admin/patient/${docId}`, config, formData)
             .then((res) => {
-                console.log("Data updated successfully:", res.data);
                 toast.success("Data updated successfully");
-                // Optionally, you can update the state or handle other actions
                 setChecked(!currentStatus);
             })
             .catch((err) => {
                 console.error("Error updating data:", err);
-                // Handle the error as needed
             });
     };
 
@@ -49,7 +46,6 @@ function Patient() {
 
 
 
-    // to fetch the data as per the search query
     const fetchUsers = (url) => {
         const accessToken = Cookies.get("access");
         const config = {
@@ -84,6 +80,7 @@ function Patient() {
 
     return (
         <div className="flex flex-col  w-full mt-16">
+
             {/* ************************************************search bar*********************************************** */}
 
             <div className="p-4  flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
@@ -306,11 +303,11 @@ function Patient() {
                     className={`fixed left-0 right-0 z-50 items-center justify-center overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full ${isEditModalVisible ? "block" : "hidden"
                         }`}
                     id="edit-user-modal"
-                    style={{ marginTop: "64px" }} // Adjust the top margin as needed
+                    style={{ marginTop: "64px" }} 
                 >
                     <div className="flex items-center justify-center h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full md:w-auto max-h-screen overflow-y-auto max-w-screen-2xl">
-                            {/* Modal header */}
+                         
                             <div className="flex items-center justify-between p-4 md:p-6 border-b rounded-t dark:border-gray-700">
                                 <h3 className="text-xl font-semibold dark:text-white">
                                     Edit user
@@ -336,7 +333,7 @@ function Patient() {
                                     </svg>
                                 </button>
                             </div>
-                            {/* Modal body */}
+                       
                             <div className="p-6 space-y-6">
                                 <EditPatient
                                     doctorId={doctEditData}
@@ -344,7 +341,7 @@ function Patient() {
                                     setEditModalVisible={setEditModalVisible}
                                 />
                             </div>
-                            {/* Modal footer */}
+
                         </div>
                     </div>
                 </div>

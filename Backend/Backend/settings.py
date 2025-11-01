@@ -15,22 +15,15 @@ from pathlib import Path
 import os
 from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
 
-# Application definition
 
 INSTALLED_APPS = [
     "daphne",
@@ -86,7 +79,6 @@ ASGI_APPLICATION = 'Backend.asgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -102,14 +94,6 @@ DATABASES = {
 
 # channel layer
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
 
 USE_IN_MEMORY_REDIS = os.getenv('USE_IN_MEMORY_REDIS', 'False') == 'True'
 
@@ -184,7 +168,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'account.User'
 
-# CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'https://docconnect.footvibe.store',
@@ -239,7 +222,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(seconds=10),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 
-    # "TOKEN_OBTAIN_SERIALIZER": "account.api.serializers.MyTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",

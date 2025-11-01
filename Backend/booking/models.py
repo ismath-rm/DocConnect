@@ -1,8 +1,4 @@
 from django.db import models
-
-from django.contrib.postgres.fields import ArrayField
-from django.utils import timezone
-from django.core.validators import MinValueValidator
 from account.models import Doctor
 
 
@@ -49,7 +45,6 @@ class Transaction(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.transaction_id:
-            # Auto-generate transaction ID greater than the last one
             last_transaction = Transaction.objects.order_by('-transaction_id').first()
             if last_transaction:
                 last_id = int(last_transaction.transaction_id)
@@ -70,7 +65,6 @@ class TransactionCommission(models.Model):
     doctor_commission_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
  
     def save(self, *args, **kwargs): 
-        # Calculate commission amount based on the transaction amount and commission rate
         self.commission_amount = self.transaction.amount * self.commission_rate
         super().save(*args, **kwargs)
 

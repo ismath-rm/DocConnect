@@ -2,7 +2,6 @@ from django.db import models
 from account.models import *
 from booking.models import *
 
-# Create your models here.
 
 class ChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')

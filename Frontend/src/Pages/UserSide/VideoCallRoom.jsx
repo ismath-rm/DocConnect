@@ -1,10 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode"; 
 import { useParams, useNavigate } from "react-router-dom";
 import { UserAPIwithAcess } from '../../Components/Api/Api';
-import axios from 'axios';
+
 
 function VideoCallRoom() {
   const { roomID } = useParams();
@@ -54,16 +54,13 @@ function VideoCallRoom() {
           onLeaveRoom: async () => {
             console.log("Leaving the room...");
             try {
-              // navigate("/booking-details");
-              // Update transaction status to COMPLETED
+              
               const updateResponse = await UserAPIwithAcess.patch(
                 `appointment/update-order/${roomID}/`,
                 { is_consultency_completed: 'COMPLETED' }
               );
 
-              console.log("Transaction status updated:", updateResponse.data);
-
-              // Fetch the transaction details
+              
               const transactionResponse = await UserAPIwithAcess.get(
                 `appointment/geting/transaction/${roomID}/`,
                 {
@@ -77,18 +74,18 @@ function VideoCallRoom() {
 
               const transaction = transactionResponse.data;
 
-              // Calculate commissions
-              const doctorCommission = transaction.amount * 0.8; // 80% of amount
-              const adminCommission = transaction.amount * 0.2; // 20% of amount
+              
+              const doctorCommission = transaction.amount * 0.8;
+              const adminCommission = transaction.amount * 0.2; 
 
-              // Prepare data for commission API
+
               const commissionData = {
                 transaction: transaction.transaction_id,
                 doctor_commission_amount: doctorCommission,
                 commission_amount: adminCommission,
               };
 
-              // Save the commissions to the database
+
               const commissionResponse = await UserAPIwithAcess.post(
                 `appointment/transactionCommission/`,
                 commissionData,
@@ -100,10 +97,7 @@ function VideoCallRoom() {
                   },
                 }
               );
-
-              console.log("Commission saved:", commissionResponse.data);
-
-              // Navigate to booking details page
+              
               navigate("/booking-details");
 
             } catch (error) {

@@ -26,11 +26,7 @@ const DoctorChatComponent = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [client, setClient] = useState(null);
   console.log("CLIENT:", client);
-  // const salonUser = useSelector(state => state.salon)
-  // console.log('salonUser:', salonUser)
-  // const salonId = salonUser.salonUser.id
-  // console.log('salonID:', salonId)
-
+  
   const [patient_id, setPatientID] = useState(null);
   const [doct, setdoct] = useState("");
 
@@ -83,7 +79,7 @@ const DoctorChatComponent = () => {
       }
     };
 
-    handleResize(); // Set initial height
+    handleResize(); 
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -92,28 +88,17 @@ const DoctorChatComponent = () => {
   }, []);
 
   useEffect(() => {
-    // Function to scroll to the bottom of the chat container
     const scrollToBottom = () => {
       if (chatMessagesRef.current) {
         chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
       }
     };
 
-    // Scroll to bottom whenever new messages are added
+   
     scrollToBottom();
   }, [chatMessages]);
 
-  // useLayoutEffect(() => {
-  //   // Function to scroll to the bottom of the chat container
-  //   const scrollToBottom = () => {
-  //     if (chatContainerRef.current) {
-  //       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-  //     }
-  //   };
-
-  //   // Scroll to bottom after the DOM has been updated
-  //   scrollToBottom();
-  // }, [chatMessages]);
+  
   const connectToWebSocket = (appointmentId) => {
     if (!appointmentId) return;
 
@@ -200,23 +185,6 @@ const DoctorChatComponent = () => {
         <div className="container p-0"></div>
         <div className="card">
           <div className="row g-0">
-            {/* <div className="col-12 col-lg-5 col-xl-3 border-right">
-                      <div className="px-4 ">
-                          <div className="d-flfex align-itemfs-center">
-                            <div className="flex-grow-1 d-flex align-items-center mt-2">
-                              <input
-                                type="text"
-                                className="form-control my-3"
-                                placeholder="Search..."
-                                onChange=''
-                                name='username'
-        
-                              />
-                              <button className='ml-2' onClick=''style={{border:"none", borderRadius:"50%"}}><i className='fas fa-search'></i></button>
-                            </div>
-                          </div>
-                      </div>
-                    </div> */}
 
             <div className="chat-container">
               <div className="appointments-list">

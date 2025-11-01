@@ -17,7 +17,6 @@ class DoctorSlotUpdateSerializer(serializers.Serializer):
             from_time = datetime.strptime(slot_data.get('from_time'), '%H:%M:%S')
             to_time = datetime.strptime(slot_data.get('to_time'), '%H:%M:%S')
 
-            # Check if the slot already exists for the specified date and time range
             if DoctorAvailability.objects.filter(doctor=self.context.get('doctor'), day=date, start_time__lt=to_time, end_time__gt=from_time).exists():
                 raise ValidationError("Overlapping slots are not allowed.", code='overlap_error')
 
@@ -71,15 +70,14 @@ class DoctorSlotBulkUpdateSerializer(serializers.Serializer):
             from_date = self.validated_data['from_date']
             to_date = self.validated_data['to_date']
             slots = self.validated_data['slots']
-            slot_data = slots[0]  # Only one slot is allowed
-
+            slot_data = slots[0]  
             current_date = from_date
             while current_date <= to_date:
                 date_str = current_date.strftime('%Y-%m-%d')
                 from_time = datetime.strptime(slot_data['from_time'], '%H:%M:%S')
                 to_time = datetime.strptime(slot_data['to_time'], '%H:%M:%S')
 
-                # Check if the slot already exists for the specified date and time range
+
                 if DoctorAvailability.objects.filter(doctor=doctor, day=current_date, start_time__lt=to_time, end_time__gt=from_time).exists():
                     raise ValidationError(f"Overlapping slots are not allowed for {date_str}.", code='overlap_error')
 
@@ -162,21 +160,21 @@ class AdvancedSlotUpdateSerializer(serializers.Serializer):
         working_days = self.validated_data['workingdaysOfWeek']
 
         if current_date.weekday() not in [self.get_weekday_number(weekday) for weekday in working_days]:
-            return []  # No slots for non-working days
-
+            return []  
+        
         slots = []
         current_time = self.time_to_minutes(from_time)
 
         while current_time + (slot_duration + buffer_time) <= self.time_to_minutes(to_time):
-            # Check if the current time falls within the break time range
+            
             if break_start_time <= self.minutes_to_time(current_time) < break_end_time:
                 current_time += slot_duration + buffer_time
-                continue  # Skip slot creation during break time
+                continue  
 
             slot_start_time = self.minutes_to_time(current_time)
             slot_end_time = self.minutes_to_time(current_time + slot_duration)
 
-            # Check for overlap or duplication of slots
+            
             if not DoctorAvailability.objects.filter(doctor=doctor, day=current_date, start_time__lt=slot_end_time, end_time__gt=slot_start_time).exists():
                 DoctorAvailability.objects.create(
                     doctor=doctor,
@@ -219,18 +217,11 @@ class TranscationModelList(serializers.ModelSerializer):
         fields = '__all__'
 
 class TranscationModelListExtra(serializers.ModelSerializer):
-    # docter_total=serializers.SerializerMethodField()
     class Meta:
         model = Transaction
         fields = ['transaction_id','patient_id','amount']
 
-    # def get_docter_total(self,obj):
-    #     total = 0
-    #     transaction = Transaction.objects.filter(transaction_id=obj.transaction_id)
-    #     print("inside serializer....",transaction)
-    #     for items in transaction:
-    #         total += (items.amount*0.8)
-    #     return total
+   
 
 class TranscationModelListDoctor(serializers.ModelSerializer):
     patient_details = serializers.SerializerMethodField()
@@ -239,8 +230,8 @@ class TranscationModelListDoctor(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_patient_details(self,obj):
-        print('Entering get_pateint_details')  # Debugging statement
-        print(f'Patient ID: {obj.patient_id}')  # Debugging statement
+        print('Entering get_pateint_details')  
+        print(f'Patient ID: {obj.patient_id}')  
         try:
             patient = User.objects.get(id=obj.patient_id)
             return AdminPatientUpdateSerializer(patient).data
@@ -255,8 +246,8 @@ class TranscationModelListPatient(serializers.ModelSerializer):
         model = Transaction
         fields = '__all__'
     def get_doctor_details(self, obj):
-        print('Entering get_doctor_details')  # Debugging statement
-        print(f'Doctor ID: {obj.doctor_id}')  # Debugging statement
+        print('Entering get_doctor_details')  
+        print(f'Doctor ID: {obj.doctor_id}')  
         try:
             doctor = Doctor.objects.get(id=obj.doctor_id)
             return AdminDocUpdateSerializer(doctor).data
@@ -264,7 +255,7 @@ class TranscationModelListPatient(serializers.ModelSerializer):
             return None
 
 
-# serializer used list out all the docotrs based on the filter
+
 
 
 class DoctorSerializer(serializers.ModelSerializer):
@@ -300,7 +291,7 @@ class AdminPatientUpdateSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
-        # Add other fields as needed
+        
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.is_email_verified = validated_data.get('is_email_verified', instance.is_email_verified)
         instance.is_id_verified = validated_data.get('is_id_verified', instance.is_id_verified)
@@ -309,7 +300,7 @@ class AdminPatientUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-# Docotr bookin serializer
+
         
 class RazorpayOrderSerializer(serializers.Serializer):
     amount = serializers.IntegerField()

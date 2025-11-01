@@ -31,7 +31,6 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
   const today = dayjs().format("DD/MM/YYYY");
 
   useEffect(() => {
-    // Fetch existing time slots for the selected date range and update state
   }, []);
 
   const handleFromTimeChange = (newTime) => {
@@ -49,7 +48,7 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
     if (dateType === "from") {
       setSelectedFromDate(formattedValue);
       if (dayjs(value).isAfter(dayjs(selectedToDate, "DD/MM/YYYY"))) {
-        setSelectedToDate(formattedValue); // Ensure toDate is not before fromDate
+        setSelectedToDate(formattedValue); 
       }
     } else if (dateType === "to") {
       setSelectedToDate(formattedValue);
@@ -114,7 +113,7 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
       const newSlot = {
         from_time: fromTimeFormatted.format("HH:mm:ss"),
         to_time: toTimeFormatted.format("HH:mm:ss"),
-        days: selectedDays, // Send the selected days to the backend
+        days: selectedDays, 
       };
 
       UserAPIwithAcess
@@ -161,7 +160,7 @@ const DoctorWeeklySlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdv
             type="date"
             value={dayjs(selectedToDate, "DD/MM/YYYY").format("YYYY-MM-DD")}
             onChange={(e) => handleDateChange(e, "to")}
-            min={dayjs(selectedFromDate, "DD/MM/YYYY").format("YYYY-MM-DD")} // Ensure toDate is not before fromDate
+            min={dayjs(selectedFromDate, "DD/MM/YYYY").format("YYYY-MM-DD")} 
             className="flex-1 border border-gray-300 rounded p-2"
           />
         </div>

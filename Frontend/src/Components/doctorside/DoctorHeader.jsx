@@ -16,7 +16,7 @@ const DoctorHeader = () => {
   const [notification, setNotification] = useState([]);
   const [data, setData] = useState(null);
   const [customID, setCustomID] = useState(null);
-  const [socket, setSocket] = useState(null); // State to keep track of WebSocket
+  const [socket, setSocket] = useState(null); 
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -45,7 +45,7 @@ const DoctorHeader = () => {
         setCustomID(customId);
 
         if (!socket) {
-          // Only create a new WebSocket if one doesn't already exist
+          
           const wsURL = `${WEBSOCKET}ws/notification/doctor/${customId}/`;
           const newSocket = new WebSocket(wsURL);
           setSocket(newSocket);
@@ -67,21 +67,20 @@ const DoctorHeader = () => {
 
           return () => {
             if (newSocket) {
-              newSocket.close(); // Clean up the WebSocket when the component unmounts
+              newSocket.close(); 
             }
           };
         }
       });
     }
 
-    // Cleanup function to close the WebSocket on component unmount
+    
     return () => {
       if (socket) {
         socket.close();
       }
     };
-  }, [user_id, socket]); // Add customID as a dependency if it's supposed to change
-  // Note: socket is intentionally not added to dependencies to avoid triggering re-renders
+  }, [user_id, socket]);
 
   const handleLogOut = () => {
     Cookies.remove("access");
@@ -99,14 +98,13 @@ const DoctorHeader = () => {
 
   return (
     <nav className="flex items-center justify-between py-4 bg-white/80 backdrop-blur-md shadow-md w-full px-10">
-      {/* Logo Container */}
+      
       <div className="flex items-center">
         <a className="cursor-pointer">
           <img className="h-10 w-auto" src={Logo} alt="Store Logo" />
         </a>
       </div>
 
-      {/* Links Section - Hidden on Small Screens */}
       <div className={`items-center hidden space-x-8 lg:flex`}>
         <NavLink
           to="/doctor/doctorHome"
@@ -180,7 +178,7 @@ const DoctorHeader = () => {
         )}
       </div>
 
-      {/* Hamburger Icon for Small Screens */}
+      
       <div className="lg:hidden mt-1">
         <button
           className="text-gray-600 hover:text-blue-500 focus:outline-none focus:text-blue-500 transition-colors duration-300 font-bold"
@@ -190,7 +188,7 @@ const DoctorHeader = () => {
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      
       {isMobileMenuOpen && (
         <div className="lg:hidden w-full mt-4">
           <div className="flex flex-col space-y-4">
@@ -277,7 +275,7 @@ const DoctorHeader = () => {
         </div>
       )}
 
-      {/* Notification Modal */}
+      
       <NotificationModal
         isOpen={isNotificationModalOpen}
         customID={customID}

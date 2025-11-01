@@ -1,14 +1,13 @@
 
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
 import AppWidgetSummary from '../../Components/adminside/elements/app-widget-summary';
 import { useEffect, useState } from 'react';
 import axios from 'axios'
 import { BASE_URL } from '../../utils/constants/Constants'
 import Cookies from 'js-cookie';
 
-// Create Axios instance
+
 const api = axios.create({
   baseURL: `${BASE_URL}appointment/api/admin-transactions/`,
   headers: {
@@ -28,7 +27,7 @@ export default function Dashboard() {
           throw new Error("Access token not found");
         }
 
-        // Update headers with access token
+        
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
         const response = await api.get();

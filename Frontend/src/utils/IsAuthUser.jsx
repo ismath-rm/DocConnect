@@ -11,7 +11,6 @@ const updateUserToken = async () => {
     const res = await axios.post(BASE_URL+'auth/token/refresh', {
       'refresh': refreshToken
     });
-    console.log('response is :',res)
 
     if(res.status === 200){
       Cookies.set('access', res.data.access);
@@ -33,7 +32,6 @@ const updateUserToken = async () => {
 const IsAuthUser = async () => {
 
   const accessToken = Cookies.get("access");
-  console.log( "hayyyyyyyyyy tocken :",accessToken)
   if(!accessToken) {
     return {'name': null, isAuthenticated: false};
   }

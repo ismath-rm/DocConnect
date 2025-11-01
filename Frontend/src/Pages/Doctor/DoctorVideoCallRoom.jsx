@@ -1,4 +1,3 @@
-import React from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
@@ -21,7 +20,7 @@ function DoctorVideoCallRoom() {
   );
 
   const myMeeting = async (element) => {
-    // generate Kit Token
+   
     const appID = 1103583712;
     const serverSecret = "2094914653d9d2520bb469b051f69377";
     const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(

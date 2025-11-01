@@ -3,7 +3,7 @@ import { BASE_URL } from "../../utils/constants/Constants";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Logo from "../../Components/adminside/navbar/Logo";
-// import DocCrump from "../../Compounts/admin/elements/BreadCrumps/DocCrump";
+
 
 function Account() {
     const [nextPage, setNextPage] = useState(null);
@@ -14,7 +14,7 @@ function Account() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Function to toggle modal visibility
+    
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
@@ -25,8 +25,8 @@ function Account() {
         "amount",
         "doctor_id",
         "patient_id",
-        "doctor_commission", // Add this line
-        "admin_commission", // Add this line
+        "doctor_commission", 
+        "admin_commission",
     ];
 
     const FieldInputTypes = {
@@ -39,10 +39,10 @@ function Account() {
         start_time: "time",
         end_time: "time",
         status: "text",
-        // created_at: "text",
+        
     };
 
-    // to fetch the data as per the search query
+    
     const fetchTransactions = (url) => {
         const accessToken = Cookies.get("access");
 
@@ -57,10 +57,10 @@ function Account() {
             .then((req) => {
                 console.log("divided in :", req.data.results);
                 const transactions = req.data.results;
-                // Calculate commissions for each transaction
+
                 const transactionsWithCommissions = transactions.map(transaction => {
-                    const doctorCommission = transaction.amount * 0.8; // 80% of amount
-                    const adminCommission = transaction.amount * 0.2; // 20% of amount
+                    const doctorCommission = transaction.amount * 0.8; 
+                    const adminCommission = transaction.amount * 0.2;
                     return {
                         ...transaction,
                         doctor_commission: doctorCommission,
@@ -68,31 +68,10 @@ function Account() {
                     };
                 });
 
-                // Save commissions to the transactionCommission table
-                // transactionsWithCommissions.forEach(transaction => {
-                //     const commissionData = {
-                //         transaction: transaction.transaction_id,
-                //         doctor_commission: transaction.doctor_commission,
-                //         admin_commission: transaction.admin_commission,
-                //     };
-                //     // Assuming you have an endpoint to save commissions
-                //     axios.post(`${BASE_URL}appointment/transactionCommission/`, commissionData, {
-                //         headers: {
-                //             Authorization: `Bearer ${accessToken}`,
-                //             Accept: "application/json",
-                //             "Content-Type": "application/json",
-                //         },
-                //     })
-                //         .then((response) => { })
-                //         .catch((error) => {
-                //             console.error("Error saving commission:", error);
-                //         });
-                // });
-
                 setTrasaction(transactionsWithCommissions);
                 setNextPage(req.data.next);
                 setPrevPage(req.data.previous);
-                setTotalPages(Math.ceil(req.data.count / 10)); // Assuming 10 items per page
+                setTotalPages(Math.ceil(req.data.count / 10)); 
             })
             .catch((err) => {
                 console.error("Error fetching transactions:", err);
@@ -124,12 +103,13 @@ function Account() {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false // Use 24-hour format
+            hour12: false
         });
     };
 
     return (
         < div className="flex flex-col  w-full mt-16">
+
             {/* ************************************************search bar*********************************************** */}
 
             <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
@@ -167,7 +147,7 @@ function Account() {
                         <thead className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                             <tr>
                                 <th scope="col" className="px-6 py-3">
-                                    {/* Checkbox */}
+                                   
                                 </th>
                                 {TransactionFields.map((field) => (
                                     <th
@@ -187,7 +167,7 @@ function Account() {
                                     className={`hover:bg-gray-100 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
                                 >
                                     <td className="px-6 py-4">
-                                        {/* Checkbox */}
+                                       
                                     </td>
                                     {TransactionFields.map((field) => (
                                         <td
@@ -204,7 +184,8 @@ function Account() {
                             ))}
                         </tbody>
                     </table>
-                    {/* Pagination */}
+                    
+                    
                     <div className="flex justify-between mt-4 px-4">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
@@ -227,12 +208,12 @@ function Account() {
                 </div>
             </div>
 
-            {/* Button to open the modal */}
+           
             <button onClick={toggleModal} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Open Receipt
             </button>
 
-            {/* Modal for the receipt */}
+            
             {isModalOpen && (
                 <div className="fixed z-10 inset-0 overflow-y-auto">
                     <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -242,7 +223,7 @@ function Account() {
 
                         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                {/* Receipt component */}
+                                
                                 <div className="flex justify-center">
                                     <div className="max-w-lg bg-white p-8 rounded-lg shadow-lg">
                                         <div className="flex justify-between mb-4">

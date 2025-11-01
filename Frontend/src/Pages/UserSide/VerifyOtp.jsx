@@ -48,7 +48,6 @@ function VerifyOtp() {
       }
     } catch (error) {
       toast.error('Error during OTP verification');
-      console.error('Error during OTP verification', error);
     }
   };
 
@@ -65,7 +64,6 @@ function VerifyOtp() {
       }
     } catch (error) {
       toast.error('Error during OTP resend');
-      console.error('Error during OTP resend', error);
     }
   };
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-// import BIRDS from "vanta/dist/vanta.waves.min";
 import BIRDS from 'vanta/dist/vanta.net.min'
 import * as THREE from "three";
 import { Routes, Route } from "react-router-dom"

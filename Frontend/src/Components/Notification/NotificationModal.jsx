@@ -21,26 +21,6 @@ function NotificationModal({ isOpen, customID, data }) {
 
   const [notificationCount, setNotificationCount] = useState(0);
 
-    // useEffect(() => {
-    //   const fetchNotifications = async () => {
-    //     try {
-    //       const response = await UserAPIwithAcess.get(`notification/doctor-side/doctor-notification/${customID}/`,config);
-    //       debouncedToast(response.data.notifications[0].message)
-    //       setNotifications(response.data.notifications);
-    //       setNotificationCount(response.data.notification_count);
-    //       console.log('RESPONSE DATA in the notification:', response.data)
-    //     } catch (error) {
-    //       console.error('Error fetching notifications:', error);
-    //     }
-    //   };
-
-    //   if (customID) {
-    //     fetchNotifications();
-    //   }
-
-    //   // fetchNotifications();
-    // }, [data]);
-
 
     useEffect(() => {
       console.log('yoo mannnn');
@@ -57,13 +37,13 @@ function NotificationModal({ isOpen, customID, data }) {
         console.log('wait');
         
     
-          // Check if the notifications array exists and has elements
+          
           if (response.data.notifications && response.data.notifications.length > 0) {
             debouncedToast(response.data.notifications[0].message);
           }
     
-          setNotifications(response.data.notifications || []); // Fallback to an empty array if undefined
-          setNotificationCount(response.data.notification_count || 0); // Fallback to 0 if undefined
+          setNotifications(response.data.notifications || []); 
+          setNotificationCount(response.data.notification_count || 0); 
           console.log('RESPONSE DATA in the notification:', response.data);
         } catch (error) {
           console.error('Error fetching notifications:', error);

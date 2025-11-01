@@ -56,19 +56,18 @@ const DocumentVerificationForm = ({ id }) => {
         },
       });
 
-      console.log("Success:", response.data);
       toast.success("Verification documents uploaded successfully!");
-      // Add any additional logic for success
+
     } catch (error) {
       console.error("Error:", error.message);
-      // Handle error as needed
+      
     }
   };
 
   useEffect(() => {
     axios.get(BASE_URL + `auth/verification/doctor/${id}/`, config)
       .then((res) => {
-        // Setting file names if they are available
+       
         setAadharFileName(res.data.aadhar_file ? res.data.aadhar_file.split('/').pop() : "");
         setDegreeFileName(res.data.degree_certificate ? res.data.degree_certificate.split('/').pop() : "");
         setExperienceFileName(res.data.experience_certificate ? res.data.experience_certificate.split('/').pop() : "");
@@ -85,7 +84,7 @@ const DocumentVerificationForm = ({ id }) => {
         {errorMessage && (
           <div className="text-red-500 mb-4">{errorMessage}</div>
         )}
-        {/* Aadhar File */}
+        
         <li className="py-4">
           <div className="flex items-center space-x-4">
             <div className="flex-1 min-w-0">
@@ -112,7 +111,7 @@ const DocumentVerificationForm = ({ id }) => {
             </div>
           </div>
         </li>
-        {/* Degree Certificate */}
+        
         <li className="py-4">
           <div className="flex items-center space-x-4">
             <div className="flex-1 min-w-0">
@@ -139,7 +138,7 @@ const DocumentVerificationForm = ({ id }) => {
             </div>
           </div>
         </li>
-        {/* Experience Certificate */}
+        
         <li className="py-4">
           <div className="flex items-center space-x-4">
             <div className="flex-1 min-w-0">

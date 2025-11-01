@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import useState from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -35,7 +35,7 @@ function ResetPassword() {
                 confirm_password: values.password,
                 id: id,
             });
-            console.log('reset password:', response);
+            
 
             if (response.status === 200) {
                 setFormError('');

@@ -1,5 +1,4 @@
 import axios from "axios";
-import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BASE_URL } from "../../utils/constants/Constants";
 import Cookies from 'js-cookie';
@@ -76,7 +75,6 @@ const UserLogin = () => {
             required
           />
           <div>
-            {/* Your existing login form */}
             <Link className="span" to="/auth/forgotpassword" >Forgot Password?</Link>
           </div>
         </div>

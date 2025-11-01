@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import useState from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -28,26 +28,26 @@ const DoctorRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // name validation
+    
     if (!first_name || !last_name) {
       toast.error("Please enter a name");
     } else if (first_name.indexOf(" ") !== -1 || last_name.indexOf(" ") !== -1) {
       toast.error("Enter a valid name");
     }
 
-    // email validation
+   
     else if (!email) {
       toast.error('Please enter an email address');
     } else if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
       toast.error('Invalid email address');
     }
 
-    //phone number validation
+    
     else if (!/^\d{10}$/.test(phone_number)) {
       toast.error('Invalid phone number. It should be exactly 10 digits.');
     }
 
-    //password validation
+    
     else if (password.trim() === "") {
       toast.error('Please enter password');
     } else if (password !== re_password) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import DoctorSlotBooking from '../../Components/doctorside/DoctorSlotBooking';
@@ -34,7 +34,7 @@ const DoctorSlot = () => {
                 console.log("pagination datas:", res.data);
                 setBooking(res.data.data);
                 console.log("the details of the doctor is here", res.data.data);
-                setNextPage(res.data.pagination.next);  // Updated to use pagination metadata
+                setNextPage(res.data.pagination.next);  
                 setPrevPage(res.data.pagination.previous);
             })
             .catch((err) => {
@@ -63,7 +63,7 @@ const DoctorSlot = () => {
                 fetchBookingDetails(`${BASE_URL}appointment/booking/details/doctor/${doct.data.id}`)
                 console.log("its display fetchBookingDetails:", fetchBookingDetails);
             }
-            // Handle the response data as needed
+            
             console.log(doct.data);
         } catch (error) {
             console.log(error);

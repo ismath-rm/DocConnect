@@ -1,11 +1,4 @@
-// import { ToTopOutlined } from "@ant-design/icons";
-// import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-// import EditDoctor from "../../components/admin/elements/Modal/EditDoctor";
-
-// import { toast } from "react-toastify";
-// import DeleteDoct from "../../components/admin/elements/Modal/DeleteDoct";
 import Cookies from "js-cookie";
 import { AdminAPIwithAcess } from '../../Components/Api/Api';
 
@@ -41,7 +34,7 @@ function Booking() {
         created_at: "text",
     };
 
-    // to fetch the data as per the search query
+
     const fetchTransactions = (url) => {
         const accessToken = Cookies.get("access");
         const config = {
@@ -57,7 +50,7 @@ function Booking() {
                 setNextPage(req.data.next);
                 setPrevPage(req.data.previous);
                 console.log(req.data.results);
-                // setDoctorData(req.data)
+                
             })
             .catch((err) => {
                 console.log(err);
@@ -75,6 +68,7 @@ function Booking() {
 
     return (
         <div className="flex flex-col  w-full mt-16">
+            
             {/* ************************************************search bar*********************************************** */}
 
             <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
@@ -150,7 +144,7 @@ function Booking() {
                                     ))}
                                 </tbody>
                             </table>
-                            {/* Pagination section */}
+                          
                             <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px' }}>
                                 <ul className="pagination">
                                     <li className="page-item">

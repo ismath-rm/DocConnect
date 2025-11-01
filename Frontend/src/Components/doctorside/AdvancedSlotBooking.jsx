@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import useState from "react";
 import dayjs from "dayjs";
 import Timer from "../Timer/Timer";
 import { toast } from "react-toastify";
@@ -99,7 +99,7 @@ const AdvancedSlotBooking = ({ docid, setRefresh, setBulk, setNormal, setAdvance
             toast.error("Select valid break time. Break start time should be before break end time.");
             return;
         }
-        // Adjust break time by subtracting the duration from the start of the break
+        
         const durationInMinutes = parseInt(selectedDuration, 10);
         const adjustedFromBreakTimeMoment = fromBreakTimeMoment.clone().subtract(durationInMinutes, 'minutes');
 

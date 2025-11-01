@@ -7,7 +7,6 @@ from django.dispatch import receiver
 
 
 
-# Create your models here.
 class MyAccountManager(BaseUserManager):
     def create_user(self, first_name, email, phone_number, password=None, date_of_birth=None, profile_picture=None, user_type='patient', approval_status='PENDING'):
         if not email:
@@ -46,7 +45,7 @@ class MyAccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-# Approval status choices should not include 'APPROVAL_' prefix, as it is already specified in the default value
+
 APPROVAL_STATUS_CHOICES = [
     ('PENDING', 'Pending'),
     ('APPROVED', 'Approved'),
@@ -208,15 +207,12 @@ class Verification(models.Model):
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
-        # Check user_type and create the corresponding profile instance
         if instance.is_doctor():
-            print('haiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
             Doctor.objects.create(user=instance)  
             Verification.objects.create(user=instance) 
          
             
 
-# Connect the signal receiver function
 post_save.connect(create_profile, sender=User)
 
 

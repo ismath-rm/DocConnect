@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -66,11 +66,11 @@ const RebookingPage = () => {
   const handleCancel = () => {
     axios
       .post(`${BASE_URL}appointment/api/rebook/${transactionId}/`, {
-        id: null, // No slot selected, just refund and redirect
+        id: null,
       })
       .then((response) => {
         toast.success("Refund successful. Redirecting to doctor list...");
-        navigate("/doctor-list"); // Redirect to doctor list page
+        navigate("/doctor-list"); 
       })
       .catch((error) => {
         toast.error(error.response?.data?.error || "Failed to process refund");
@@ -148,7 +148,7 @@ const RebookingPage = () => {
         </ul>
       </div>
 
-      {/* Rebook Modal */}
+      
       {isRebookModalVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg w-1/2 max-w-md">
@@ -186,7 +186,7 @@ const RebookingPage = () => {
               </button>
               <button
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                onClick={handleCancel} // Call handleCancel on cancel
+                onClick={handleCancel} 
               >
                 Cancel
               </button>

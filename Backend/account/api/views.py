@@ -1,7 +1,5 @@
-from django.views import View
 from rest_framework.views import APIView
 from rest_framework import status, generics
-from django.http import JsonResponse
 from rest_framework.response import Response
 from .serializers import  *
 import random
@@ -24,8 +22,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
 from django.db.models import Q
 from django.conf import settings
-from django.template.loader import render_to_string
-from decouple import config
 
 
 class  RegisterView(APIView):
@@ -58,13 +54,11 @@ class  RegisterView(APIView):
         return Response(content, status=201)
 
     def send_otp_email(self, email):
-        print("Email:", email)
-        # Delete any existing OTPs for this user
+
         
         OTPModel.objects.filter(user__email=email).delete()
-        print('haloo abhijith')
+    
         random_num = random.randint(1000, 9999)
-        print(random_num)
         
         try:
             send_mail(
@@ -75,12 +69,10 @@ class  RegisterView(APIView):
                 fail_silently=False,
                 )
         except Exception as e:
-            print("Error sending email: ", e)
             raise
 
         user = User.objects.get(email=email)
-        print('hey')
-        print(user)
+       
         try:
             otp_instance = OTPModel.objects.create(
                 user=user,
@@ -88,7 +80,7 @@ class  RegisterView(APIView):
                 timestamp=datetime.now(),
             )
         except Exception as e:
-            print("It's: ", e)
+
             raise
         otp_instance.save()
 
@@ -104,11 +96,10 @@ class OTPVerificationView(APIView):
             return Response("User does not exist or OTP not generated", status=404)
 
         if otp_instance.otp == int(request.data['otp']):
-            # You can set is_active to True or perform any other necessary actions
             user.is_active = True
             user.save()
 
-            otp_instance.delete()  # Delete the OTP instance after successful verification
+            otp_instance.delete()  
 
             return Response("User successfully verified", status=200)
 
@@ -140,18 +131,16 @@ class ResendOTPView(APIView):
 class UserLogin(APIView):
 
     def post(self, request):
-        print(request.data)
 
         try:
             email = request.data['email']
             password = request.data['password']
-            print(email, password)
+          
 
         except KeyError:
             raise ParseError('All Fields Are Required')
 
         if not User.objects.filter(email=email).exists():
-            # raise AuthenticationFailed('Invalid Email Address')
             return Response({'detail': 'Email Does Not Exist'}, status=status.HTTP_403_FORBIDDEN)
 
         if not User.objects.filter(email=email, is_active=True).exists():
@@ -163,11 +152,9 @@ class UserLogin(APIView):
             raise AuthenticationFailed('Invalid Password')
 
         refresh = RefreshToken.for_user(user)
-        print(request.data)
-        print(refresh)
 
         refresh["first_name"] = str(user.first_name)
-        # refresh["is_admin"] = str(user.is_superuser)
+
 
         content = {
             'refresh': str(refresh),
@@ -176,7 +163,7 @@ class UserLogin(APIView):
             'is_doctor': user.is_doctor(),
             'user_id': user.id
         }
-        print(content)
+    
         return Response(content, status=status.HTTP_200_OK)
 
 
@@ -196,11 +183,10 @@ class ForgotPasswordView(APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         reset_url = f"{settings.FRONTEND_URL}auth/resetpassword/{uid}/{token}/"
 
-        # Construct email message directly
+        
         subject = "Reset your password"
         message = f"Hello {user.username},\n\nPlease click the following link to reset your password:\n{reset_url}"
 
-        # Send reset password email
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
         return Response({"detail": "Password reset link has been sent to your email."}, status=status.HTTP_200_OK)
@@ -226,7 +212,7 @@ class ResetPasswordView(APIView):
                 user.save()
                 return Response({
                     "detail": "Password has been reset successfully.",
-                    "user_type": user.user_type  # Include the user_type in the response
+                    "user_type": user.user_type  
                 }, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -241,13 +227,11 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            print('log out')
             refresh_token = request.data["refresh_token"]
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            print("401 error mannnn")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     
 
@@ -261,7 +245,7 @@ class UserDetails(APIView):
         serializer = UserSerializer(user)
         data = serializer.data
 
-        # Append profile picture URL if available
+        
         if user.profile_picture:
             data['profile_pic'] = request.build_absolute_uri('/')[:-1] + user.profile_picture.url
         else:
@@ -284,7 +268,7 @@ class UserProfileView(APIView):
 
     def put(self, request):
         user = request.user
-        print(f'config is {config("EMAIL_HOST")}')
+
         serializer = UserProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -309,23 +293,16 @@ class AdminDocUpdate(generics.RetrieveUpdateAPIView):
 
 class UpdateAdminDoc(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
-    # permission_classes = [IsAuthenticated]
     serializer_class = UpdateAdminDocSerializer
     lookup_field = 'doctor_user__id'
 
-    # def update(self, request, *args, **kwargs):
-    #     print(f"Request data: {request.data}")  # Log the incoming request data
-    #     response = super().update(request, *args, **kwargs)
-    #     return response
     
-
 class VarificationDoctorView(generics.RetrieveUpdateAPIView):
     serializer_class = VerificationSerializer
     lookup_field = 'user__id'
 
     def get_queryset(self):
         user_id = self.kwargs.get('user__id')
-        print('user_id is :',user_id)
 
         user_verification = get_object_or_404(Verification, user__id=user_id)
         return Verification.objects.filter(user=user_verification.user)
@@ -350,14 +327,7 @@ class PatientUseDetailsUpdate(generics.ListAPIView):
 
 
 
-# class AdminDocUpdate(generics.RetrieveUpdateAPIView):
-#     queryset = Doctor.objects.all()
-#     # print('iam a doctor',queryset)
-#     permission_classes = [IsAuthenticated]
-#     parser_classes = (MultiPartParser, FormParser)
-#     serializer_class = AdminDocUpdateSerializer
-#     permission_classes=[IsAuthenticated]
-#     lookup_field = 'pk'
+
 
 
 class UserDetailsUpdate(generics.ListAPIView):
@@ -372,12 +342,12 @@ class UserDetailsUpdate(generics.ListAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter based on gender
+        
         gender = self.request.query_params.get('gender', None)
         if gender:
             queryset = queryset.filter(gender=gender)
 
-        # Filter based on specialization
+        
         specialization = self.request.query_params.get('specialization', None)
         if specialization:
             queryset = queryset.filter(doctor_user__specializations__icontains=specialization)
@@ -421,7 +391,6 @@ class DoctorCustomIdView(generics.RetrieveAPIView):
     lookup_field = 'pk' 
 
 
-# for to display the wallet amout of the user
     
 class WalletAmountView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
@@ -435,5 +404,6 @@ class WalletAmountView(generics.RetrieveUpdateAPIView):
             serializer = self.get_serializer(wallet)
             return Response(serializer.data)
         except Wallet.DoesNotExist:
-            # Return a default balance of 0 if the wallet does not exist
+
             return Response({'balance': 0}, status=status.HTTP_200_OK)
+

@@ -28,7 +28,7 @@
 
 }
 
-/* List of upcoming appointments on the left side */
+
 .appointments-list {
   flex: 1;
   padding: 10px;
@@ -57,13 +57,13 @@
   background-color: #f0f0f0;
 }
 
-/* Chat window on the right side */
+
 .chat-window {
   flex: 2;
   padding: 5px;
 }
 
-/* Information about the selected appointment */
+
 .selected-appointment-info {
   border-bottom: 1px solid #ccc;
   padding-bottom: 10px;
@@ -75,7 +75,7 @@
   margin-bottom: 10px;
 }
 
-/* Messages container */
+
 .chat-messages {
   max-height: 300px;
   overflow-y: auto;
@@ -83,7 +83,7 @@
   flex-direction: column;
 }
 
-/* Individual chat message */
+
 .message {
   background-color: #e6f7ff;
   padding: 8px;
@@ -91,7 +91,7 @@
   border-radius: 5px;
 }
 
-/* Input box for typing messages */
+
 .message-input {
   display: flex;
   margin-top: 10px;
@@ -125,28 +125,24 @@
 
 .sender {
   background-color: #4caf50;
-  /* Green color for sender's messages */
   color: white;
   align-self: flex-end;
 }
 
 .receiver {
   background-color: #f1f0f0;
-  /* Light gray color for receiver's messages */
   color: black;
   align-self: flex-start;
 }
 
 .message-right {
   background-color: #4caf50;
-  /* Green color for sender's messages */
   color: white;
   padding-left: 20px;
 }
 
 .message-left {
   background-color: #f1f0f0;
-  /* Light gray color for receiver's messages */
   color: black;
 }
 
@@ -191,9 +187,7 @@
   align-items: end;
   padding-left: 20px;
   margin-bottom: 5px;
-  /* Adjust spacing between messages if needed */
   margin-left: 5px;
-  /* Adjust spacing between messages if needed */
 }
 
 .received-message {
@@ -203,9 +197,7 @@
   border-radius: 5px;
   padding: 8px;
   margin-bottom: 5px;
-  /* Adjust spacing between messages if needed */
   margin-right: 5px;
-  /* Adjust spacing between messages if needed */
 }
 
 .selected-doctor-info {
@@ -222,7 +214,6 @@
 .selected-doctor-info div {
   flex-grow: 1;
   margin-bottom: 0;
-  /* Reduce to zero or a smaller value */
   padding-bottom: 0;
 
 }

@@ -36,7 +36,6 @@ const DoctorSlotBooking = ({ docid }) => {
   const [prevPage, setPrevPage] = useState(null);
 
   useEffect(() => {
-    // Fetch existing time slots for the selected date and update state
     fetchAvailableSlots();
   }, [selectedDate, docid, isRefresh]);
 
@@ -97,7 +96,6 @@ const DoctorSlotBooking = ({ docid }) => {
       const allowedStartTime = moment("05:00:00", "HH:mm:ss");
       const allowedEndTime = moment("22:00:00", "HH:mm:ss");
 
-      // New Validation: Ensure that start time is before end time
       if (fromTimeFormatted.isSameOrAfter(toTimeFormatted)) {
         toast.warning("Please select a valid time range.");
         return;
@@ -189,7 +187,7 @@ const DoctorSlotBooking = ({ docid }) => {
       config
     )
       .then((response) => {
-        fetchAvailableSlots(); // Refresh the slots after deletion
+        fetchAvailableSlots(); 
         toast.success("Slot deleted successfully");
       })
       .catch((error) => {

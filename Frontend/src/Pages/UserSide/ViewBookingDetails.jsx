@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '../../utils/constants/Constants'
 import Cookies from 'js-cookie';
@@ -20,20 +20,14 @@ const ViewBookingDetails = () => {
 
 
     const fetchBookingDetails = (url) => {
-        console.log('bookig_id is:', url);
         axios
             .get(`${url}`, config)
             .then((res) => {
-                console.log('thisis the on eo i wa speaking abou till this point');
-                console.log('res');
-                console.log("pagination datas:", res.data);
                 setBooking(res.data.data);
-                console.log("Booking details fetched:", res.data.data);
-                setNextPage(res.data.pagination.next);  // Updated to use pagination metadata
-                setPrevPage(res.data.pagination.previous);  // Updated to use pagination metadata
+                setNextPage(res.data.pagination.next);  
+                setPrevPage(res.data.pagination.previous);  
             })
             .catch((err) => {
-                console.error('Error fetching booking details:', err);
                 toast.error('Error fetching booking details');
             });
     };
@@ -43,12 +37,8 @@ const ViewBookingDetails = () => {
         try {
             const response = await axios.get(BASE_URL + 'auth/user/details/', config);
             const userData = response.data;
-            console.log('userdata:', userData);
 
-            // Fetch booking details using the user data
             fetchBookingDetails(`${BASE_URL}appointment/booking/details/patient/${userData.id}`);
-            console.log('fetchBookingDetails:', fetchBookingDetails);
-            console.log('custom_id:', userData.id);
 
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -94,7 +84,7 @@ const ViewBookingDetails = () => {
                 </div>
             </div>
 
-            {/* Pagination section */}
+
             <nav className="flex justify-between px-5">
     <ul className="pagination">
         <li className={`page-item ${!prevPage ? 'disabled' : ''}`}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import UserImage from '../../assets/images/user.jpg';
 import { BASE_URL } from '../../utils/constants/Constants'
@@ -9,8 +9,7 @@ import DocumentVerificationForm from '../../Components/doctorside/Element/Docume
 import { UserAPIwithAcess, UserImageAccess } from '../../Components/Api/Api';
 import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom'
-import DoctorSlotBooking from '../../Components/doctorside/DoctorSlotBooking'
-import BookindDetailsDoctor from '../../Components/doctorside/Element/BookingDetailsDoctor'
+
 
 const DoctorProfile = () => {
   const accessToken = Cookies.get("access");
@@ -64,7 +63,6 @@ const DoctorProfile = () => {
     try {
       const response = await axios.get(BASE_URL + 'auth/user/details/', config);
       const userData = response.data;
-      console.log(userData);
       setId(userData.id);
       setProfile({
         username: userData.username,
@@ -99,11 +97,9 @@ const DoctorProfile = () => {
       }
     }).then(response => {
       setProfile((res) => ({ ...res, profile: response.data.profile_picture }))
-      console.log("picture", response.data.profile_picture);
       toast.success('Profile picture updated successfully');
     }).catch(error => {
       toast.error('Error updating profile picture');
-      console.error('Error updating profile picture:', error);
     });
   };
 
@@ -167,7 +163,6 @@ const DoctorProfile = () => {
   };
 
   const handleUpdate = () => {
-    // Check for any errors before updating
     let isValid = true;
     Object.keys(profile).forEach((field) => {
       validateField(field, profile[field]);
@@ -183,16 +178,11 @@ const DoctorProfile = () => {
         })
         .catch(error => {
           toast.error('Error updating profile');
-          console.error('Error updating profile:', error);
         });
     } else {
       toast.error('Please fill out the form correctly.');
     }
   };
-
-  // ________________________________________________________________________________//
-
-
 
 
   const ProfileFields = [
@@ -214,26 +204,26 @@ const DoctorProfile = () => {
     hospital: "text",
   };
 
-  // Function to submit the personal profile information
+
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
 
-    // Create a FormData object
+    
     const formData = new FormData(e.target);
 
     try {
-      // Make the API request
+
       const response = await UserImageAccess.patch(
         BASE_URL + `auth/doc/pro/${id}/`,
         formData,
         config
       );
-      console.log("Data updated successfully:", response.data);
+     
       toast.success("Data updated successfully");
-      // Optionally, you can reset the form or handle other actions
+      
     } catch (error) {
       console.error("Error updating data:", error);
-      // Handle the error as needed
+      
       if (error.response) {
         toast.error(error.response.data.user.date_of_birth[0]);
       } else {
@@ -248,23 +238,20 @@ const DoctorProfile = () => {
     try {
       const token = Cookies.get("access");
       let decoded = jwtDecode(token);
-      console.log(decoded, "hfhhhhhhhhhhhhhhhhhhhhhhhh");
       let id = decoded.user_id;
       console.log(id);
       setId(id);
 
       const doct = await UserAPIwithAcess.get("auth/doc/pro/" + decoded.user_id + '/', config);
-      console.log('ismu1');
-      console.log(doct.data.profile_picture);
+     
       if (doct.status === 200) {
-        console.log(doct);
         setDocDetail(doct.data);
         setdocid(doct.data.id)
         setisVerified(doct.data.user.is_id_verified);
-        console.log('this is not what i want');
+        
 
       }
-      // Handle the response data as needed
+      
       console.log(doct.data);
     } catch (error) {
       console.log(error);
@@ -280,7 +267,6 @@ const DoctorProfile = () => {
         <div className="relative">
           <img
             className="rounded-full w-24 h-24 object-cover"
-            // src={profile.profile ? BASE_URL + profile.profile : UserImage}
             src={profile.profile ? `${BASE_URL.replace(/\/+$/, '')}${profile.profile}` : UserImage}
             alt="Profile"
           />
@@ -430,7 +416,7 @@ const DoctorProfile = () => {
         </div>
       </div>
 
-      {/* **************************************************Profile settting for user****************************************** */}
+      {/* **************************************************Profile settting for doctor****************************************** */}
 
       <div className="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
 
@@ -505,8 +491,9 @@ const DoctorProfile = () => {
           </div>
         </form>
       </div>
-      {/* <DocumentVerificationForm id={id} /> */}
-      {/* {id && !isVerified && <DocumentVerificationForm id={id} />} */}
+      
+
+
       {/* *************************************************This portion for Time slot********************************************************/}
       {isVerified &&
         <div className="py-10 text-center">
@@ -517,6 +504,8 @@ const DoctorProfile = () => {
           Create Slot
         </Link>
       </div>}
+
+
 
       {/* ***********************************************verification documents***************************************************************** */}
       {id && !isVerified && <DocumentVerificationForm id={id} />}

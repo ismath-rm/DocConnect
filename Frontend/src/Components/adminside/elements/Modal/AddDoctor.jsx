@@ -3,15 +3,15 @@ import React from 'react'
 function AddDoctor() {
   return (
     <>
-  {/* Add User Modal */}
+  
   <div
     className="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
     id="add-user-modal"
   >
     <div className="relative w-full h-full max-w-2xl px-4 md:h-auto">
-      {/* Modal content */}
+     
       <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
-        {/* Modal header */}
+        
         <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
           <h3 className="text-xl font-semibold dark:text-white">
             Add new user
@@ -35,7 +35,7 @@ function AddDoctor() {
             </svg>
           </button>
         </div>
-        {/* Modal body */}
+       
         <div className="p-6 space-y-6">
           <form action="#">
             <div className="grid grid-cols-6 gap-6">
@@ -121,7 +121,7 @@ function AddDoctor() {
             </div>
           </form>
         </div>
-        {/* Modal footer */}
+        
         <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
           <button
             className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"

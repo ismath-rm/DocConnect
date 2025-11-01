@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BeakerIcon } from "@heroicons/react/24/solid";
 import { AcademicCapIcon } from "@heroicons/react/24/solid";
 import { BriefcaseIcon } from "@heroicons/react/24/solid";
@@ -33,10 +33,8 @@ function DocProfile() {
         const decoded = jwtDecode(token);
         setPatientID(decoded.user_id)
 
-        console.log("the decoded patientId", decoded.user_id)
     }
 
-    // to display the booking component
 
     const [showBooking, setShowBooking] = useState(false);
 
@@ -59,7 +57,7 @@ function DocProfile() {
         fetchPatientID()
     }, []);
 
-    // Doctor field values .....
+    
     const doctorDetails = {
         specialization: doct.specializations ? doct.specializations : "General",
         education: doct.education ? doct.education : "",
@@ -74,7 +72,7 @@ function DocProfile() {
             : "₹ 300",
     };
 
-    // Define an array of fields
+    
     const fields = [
         {
             title: "Specialization",
@@ -252,7 +250,7 @@ function DocProfile() {
                                     </svg>
                                 </a>
                             </div>
-                            {/* Inside your component render method or functional component */}
+                            
                             <div className="flex flex-wrap my-16">
                                 {fields.map((field, index) => (
                                     <div

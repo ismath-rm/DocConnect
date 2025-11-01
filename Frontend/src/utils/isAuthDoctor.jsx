@@ -59,7 +59,7 @@ const isAuthDoctor = async () => {
   let decoded = jwtDecode(accessToken);
 
   if (decoded.exp > currentTime) {
-    console.log('oiiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
+  
     let checkDoc = await fetchisDoctor();
     return {
       name: decoded.first_name,

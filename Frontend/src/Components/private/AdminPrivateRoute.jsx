@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import isAuthAdmin from '../../utils/isAuthAdmin';
 import Loader from '../loader/Loader';
@@ -30,7 +30,6 @@ function AdminPrivateRoute({ children }) {
   }, []);
 
   if (isLoading) {
-    // Handle loading state, you might show a loading spinner
     return <Loader/>;
   }
 
@@ -42,11 +41,9 @@ function AdminPrivateRoute({ children }) {
   }
 
   if ((!isAuthenticated.is_admin)) {
-    // If not authenticated, redirect to login page with the return URL
     return <Navigate to="/admincontrol/login" />;
   }
 
-  // If authenticated, render the child components
   return children;
 }
 

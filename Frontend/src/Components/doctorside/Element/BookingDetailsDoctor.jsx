@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import UserImage from '../../../assets/images/user.jpg';
 import { toast } from "react-toastify";
 import { UserAPIwithAcess } from "../../Api/Api";
@@ -28,28 +28,6 @@ function BookindDetailsDoctor({ transaction_id }) {
     setTransaction(transaction_id);
   }, [transaction_id.transaction_id]);
 
-  // useEffect(() => {
-  //   UserAPIwithAcess
-  //     .get(`appointment/detail/transaction/${transaction_id}`, config)
-  //     .then((res) => {
-  //       const transactionData = res.data;
-  //       setTransaction(transactionData);
-  //       setStatus(transactionData.status);
-
-  //       UserAPIwithAcess
-  //         .get(`appointment/detail/patient/${transactionData.patient_id}`, config)
-  //         .then((res) => {
-  //           setDoct(res.data);
-  //           console.log('details of user fereom doctor',res.data);
-  //         })
-  //         .catch((error) => {
-  //           console.log(error);
-  //         });
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, [transaction_id]);
 
   useEffect(() => {
     const currentDateTime = new Date();
@@ -61,31 +39,7 @@ function BookindDetailsDoctor({ transaction_id }) {
     setIsMeetingAvailable(meetingAvailable);
   }, [transaction]);
 
-  // const handleCancel = () => {
-  //   UserAPIwithAcess
-  //     .post(
-  //       `appointment/cancel/booking/doctor/`,
-  //       { transaction_id: transaction.transaction_id },
-  //       config
-  //     )
-  //     .then((res) => {
-  //       console.log('API Response:', res);
-  //       setTransaction((prevTransaction) => ({
-  //         ...prevTransaction,
-  //         is_consultency_completed: "REFUNDED",
-  //       }));
-
-  //       console.log(res);
-  //       setStatus("REFUNDED");
-  //       setCancel(false);
-  //       toast.success(
-  //         "Booking cancelled successfully.send mail"
-  //       );
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
+  
 
   const handleCancel = () => {
     UserAPIwithAcess.post(
@@ -96,23 +50,21 @@ function BookindDetailsDoctor({ transaction_id }) {
       .then((res) => {
         console.log("API Response:", res);
 
-        // Update status to "CANCELLED"
         setTransaction((prevTransaction) => ({
           ...prevTransaction,
           is_consultency_completed: "CANCELLED",
         }));
 
         setStatus("CANCELLED");
-        setCancel(false); // Close the cancellation dialog or UI element
+        setCancel(false); 
 
-        // Notify the user that the cancellation was successful
+        
         toast.success(
           "Booking cancelled successfully and send email for a rebooking link."
         );
       })
       .catch((error) => {
         console.error("Error cancelling booking:", error);
-        // Optionally, show an error message to the user
         toast.error("Failed to cancel booking. Please try again.");
       });
   };
@@ -126,7 +78,7 @@ function BookindDetailsDoctor({ transaction_id }) {
   };
 
   const handleJoinMeeting = (id) => {
-    // Add logic to redirect to the room/transaction_id page
+    
     navigate(`/doctor/room/${id.transaction_id}`);
   };
 
@@ -224,7 +176,7 @@ function BookindDetailsDoctor({ transaction_id }) {
       <button
         onClick={handleOpenCancel}
         className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-        disabled={status === "REFUNDED"}  // Disable if status is "REFUNDED"
+        disabled={status === "REFUNDED"}  
       >
         Cancel
       </button>
@@ -232,7 +184,7 @@ function BookindDetailsDoctor({ transaction_id }) {
       <button
         onClick={() => handleJoinMeeting(transaction_id)}
         className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-        disabled={status === "REFUNDED"}  // Disable if status is "REFUNDED"
+        disabled={status === "REFUNDED"}  
       >
         Join Call
       </button>

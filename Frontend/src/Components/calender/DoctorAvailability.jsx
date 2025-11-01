@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -7,12 +5,11 @@ import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { BASE_URL } from "../../utils/constants/Constants";
 import useRazorpay from "react-razorpay";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { UserAPIwithAcess } from "../Api/Api";
 import Cookies from "js-cookie";
 
-// Utility function to check if a time slot is in the future
+
 const isFutureTimeSlot = (date, timeSlot) => {
   const now = dayjs();
   const currentDateTime = now.format("YYYY-MM-DD HH:mm");
@@ -23,11 +20,11 @@ const isFutureTimeSlot = (date, timeSlot) => {
     return selectedDateTime.isAfter(currentDateTime);
   }
 
-  return true; // For future dates, all slots are considered in the future
+  return true; 
 };
 
 
-// Utility function to sort time slots in ascending order
+
 const sortTimeSlotsAscending = (slots) => {
   return slots.sort((a, b) => dayjs(a.from, "HH:mm").isAfter(dayjs(b.from, "HH:mm")) ? 1 : -1);
 };
@@ -40,7 +37,6 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
     },
   };
   const [Razorpay] = useRazorpay();
-  // const userId = useSelector((state) => state.authentication_user.user_id);
   const [patientID, setPatientID] = useState(null)
   const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -53,11 +49,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
   useEffect(() => {
     fetchAvailableTimeSlots(selectedDate.format("YYYY-MM-DD"));
     UserAPIwithAcess.get(`auth/custom-id/patient/${patient_id}`, config).then((res) => {
-      console.log("Response data:", res.data);
       setPatientID(res.data.id)
-
-      console.log("the patient custom id got here ", res.data.id)
-
 
     }).catch((err) => {
       console.log(err)
@@ -74,7 +66,6 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         , config
       );
 
-      // Filter out past time slots
       const futureSlots = response.data.available_slots?.filter((slot) => isFutureTimeSlot(date, slot)) || [];
       const sortedSlots = sortTimeSlotsAscending(futureSlots);
 
@@ -111,13 +102,10 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
     setSelectedTimeSlot(null);
-    // console.log("the user id is here",userId);
   };
 
-  // complete order
   const complete_order = (paymentID, orderID, signature) => {
-    console.log("doctor_id got here befor  passing", doctorId)
-    console.log("patient id got here befor  passing", patientID)
+    
     UserAPIwithAcess
       .post(`/appointment/complete-order/`, {
         payment_id: paymentID,
@@ -137,14 +125,13 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
         }
       })
       .catch((error) => {
-        console.log("this is the errror");
-        // console.log(error);
+        ;
         console.log(error.response ? error.response.data : error.message);
       });
   };
 
   const handlePayment = () => {
-    // Check slot availability before proceeding with payment
+    
     UserAPIwithAcess
       .post(`appointment/check-availability/`, {
         doctor_id: doctorId,
@@ -158,34 +145,30 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
           return;
         }
 
-        // If the slot is available, proceed with creating the order
-        console.log("Creating order with amount:", fees);
+        
         return UserAPIwithAcess.post(`${BASE_URL}appointment/create-order/`, {
           
-          // amount: fees,
-          amount: parseInt(fees, 10), // Convert `fees` to an integer
+          
+          amount: parseInt(fees, 10), 
           currency: "INR",
           
-          // Add any other relevant data for creating the order
+          
         }, config);
       })
       .then((orderResponse) => {
         const order = orderResponse.data.data.id;
 
-        // Configure Razorpay options
+     
         const options = {
-          key: "rzp_test_8XSNvVIgMjtH1b", // Enter the Key ID generated from the Dashboard
+          key: "rzp_test_8XSNvVIgMjtH1b",
           name: "DocConnect",
           description: "Test Transaction",
           image: "https://example.com/your_logo",
-          order_id: order, //This is a sample Order ID. Pass the `id` obtained in the response of createOrder().
+          order_id: order,
           handler: function (response) {
-            console.log(
-              "api responseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-              response
-            );
+            
 
-            //complete order
+            
             complete_order(
               response.razorpay_payment_id,
               response.razorpay_order_id,
@@ -205,7 +188,7 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
           },
         };
 
-        const rzp1 = new Razorpay(options);
+        const rzp1 = new Razorpay(options); 
         rzp1.on("payment.failed", function (response) {
           alert(response.error.code);
           alert(response.error.description);
@@ -219,14 +202,14 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
       })
       .catch((error) => {
         console.error("Error during payment processing:", error);
-        // Consider displaying a user-friendly error message
+        
       });
   };
 
 
   const handleWalletPayment = () => {
-    // Check slot availability before proceeding with payment
-    console.log('doctor id in wallet payment:', doctorId);
+    
+    
     UserAPIwithAcess
       .post(`appointment/check-availability/`, {
         doctor_id: doctorId,
@@ -260,13 +243,12 @@ const DoctorAvailability = ({ doctorId, fees, patient_id }) => {
             }
           })
           .catch((error) => {
-            console.log(error.response.data.error);
             toast.error(error.response.data.error);
           });
       })
       .catch((error) => {
         console.error("Error during payment processing:", error);
-        // Consider displaying a user-friendly error message
+        
       });
   };
 

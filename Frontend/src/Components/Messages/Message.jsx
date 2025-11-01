@@ -40,9 +40,6 @@ const ChatComponent = () => {
             setPatient(patientIdResponse.data);
             setPatientID(patientId);
             setBookings(reversedBookings);
-
-            console.log('***PATIENT***', patientIdResponse.data);
-            console.log('***BOOKINGS***', reversedBookings);
         } catch (error) {
             navigate('/login');
             console.error('Error fetching data', error);
@@ -69,10 +66,10 @@ const ChatComponent = () => {
 
     const connectToWebSocket = (appointmentId) => {
         if (!appointmentId) return;
-        console.log("We udiiiiiii", appointmentId)
+        
         const newClient = new WebSocket(`${WEBSOCKET}ws/chat/${appointmentId}/`);
         setClient(newClient);       
-        console.log('SET CLIENT:', newClient);
+        
 
         newClient.onopen = () => {
             console.log('Websocket Client Connected');
@@ -80,7 +77,7 @@ const ChatComponent = () => {
 
         newClient.onmessage = (message) => {
             const data = JSON.parse(message.data);
-            console.log('Received message:', message.data);
+            
             setChatMessages((prevMessages) => [...prevMessages, data]);
         };
 
@@ -88,7 +85,7 @@ const ChatComponent = () => {
             try {
                 const response = await fetch(`${BASE_URL}chat/chat-messages/transaction/${appointmentId}/`);
                 const data = await response.json();
-                console.log('data:', data);
+                
                 const messagesTextArray = data.map((item) => ({
                     message: item.message,
                     sendername: item.sendername,
@@ -97,7 +94,7 @@ const ChatComponent = () => {
             } catch (error) {
                 console.error('Error fetching existing messages:', error);
             }
-            console.log('Chat messages:', chatMessages);
+            
         };
         fetchExistingMessages();
 
@@ -113,7 +110,6 @@ const ChatComponent = () => {
 
     const sendMessage = () => {
         if (message.trim() === '' || !client || !selectedAppointment) {
-            console.log('Invalid conditions for sending a message');
             return;
         }
 

@@ -7,8 +7,7 @@ import {
     CardBody,
 } from "@material-tailwind/react";
 import { BASE_URL } from '../../utils/constants/Constants';
-import { jwtDecode } from "jwt-decode"; // Correct import
-import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const Accountdetailes = () => {
     const [Commissions, setCommissions] = useState([]);
@@ -23,10 +22,9 @@ const Accountdetailes = () => {
         setLoading(true);
         try {
             const response = await axios.get(url);
-            console.log("ayyyyyyyyyyoooooooooooooooooooo", response.data);
             const transactionsWithCommissions = response.data.results.map(transaction => {
-                const doctorCommission = transaction.amount * 0.8; // 80% of amount
-                const adminCommission = transaction.amount * 0.2; // 20% of amount
+                const doctorCommission = transaction.amount * 0.8; 
+                const adminCommission = transaction.amount * 0.2; 
                 return {
                     ...transaction,
                     doctor_commission: doctorCommission,
@@ -51,7 +49,6 @@ const Accountdetailes = () => {
         fetchTransactions(url);
     }, [doctorId, accessToken]);
 
-    // const totalReceivedAmount = Commissions.reduce((total, transaction) => total + transaction.doctor_commission, 0);
     return (
         <Card className="h-full w-full">
             <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -144,7 +141,7 @@ const Accountdetailes = () => {
                     </tfoot>
                 </table>
 
-                {/* Pagination section */}
+               
                 <nav className="flex justify-between px-4 py-2">
                     <ul className="pagination flex space-x-2">
                         <li className={`page-item ${!prevPage ? 'disabled' : ''}`}>

@@ -1,5 +1,4 @@
 
-import React from 'react'
 import { Link } from 'react-router-dom'
 
 
@@ -7,7 +6,6 @@ function PaymentSucess() {
 
   return (
     <>
-      {/* component */}
       <div className="bg-slate-50 h-full p-24 ">
         <div className="bg-slate-50 p-6  md:mx-auto">
           <svg

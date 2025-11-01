@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import DoctorContainer from '../../Components/userside/DoctorContainer';
 import { Fragment, useState } from "react";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
@@ -67,8 +66,8 @@ function classNames(...classes) {
 function DoctorSearch() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState({
-        gender: [], // Initialize with an empty array
-        specialization: [], // Initialize with an empty array
+        gender: [], 
+        specialization: [], 
 
     });
 
@@ -79,11 +78,9 @@ function DoctorSearch() {
 
                 const filterIndex = updatedFilters[category].indexOf(value);
 
-                if (filterIndex !== -1) {
-                    // If the value is already present, remove it
+                if (filterIndex !== -1) {                   
                     updatedFilters[category].splice(filterIndex, 1);
                 } else {
-                    // If the value is not present or the category is undefined, add it
                     updatedFilters[category].push(value);
                 }
 
@@ -101,7 +98,7 @@ function DoctorSearch() {
     return (
         <div className="bg-slate-100">
             <div>
-                {/* Mobile filter dialog */}
+                
                 <Transition.Root show={mobileFiltersOpen} as={Fragment}>
                     <Dialog
                         as="div"
@@ -145,7 +142,7 @@ function DoctorSearch() {
                                         </button>
                                     </div>
 
-                                    {/* Filters */}
+                                    
                                     <form className="mt-4 border-t border-gray-200">
                                         <h3 className="sr-only">Categories</h3>
 
@@ -289,7 +286,7 @@ function DoctorSearch() {
                         </h2>
 
                         <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
-                            {/* Filters */}
+                            
                             <form className="hidden lg:block">
                                 <h3 className="sr-only">Categories</h3>
 
@@ -360,7 +357,7 @@ function DoctorSearch() {
                                 ))}
                             </form>
 
-                            {/* Product grid */}
+                            
                             <div className="lg:col-span-3">
                                 <DoctorContainer selectedFilters={selectedFilters} />
                             </div>

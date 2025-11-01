@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import useState from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../utils/constants/Constants";
@@ -82,7 +82,7 @@ const DoctorLogin = () => {
             required
           />
           <div>
-            {/* Your existing login form */}
+           
             <Link className="span" to="/auth/forgotpassword" >Forgot Password?</Link>
           </div>
         </div>

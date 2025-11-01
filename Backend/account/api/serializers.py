@@ -7,9 +7,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Add custom claims
         token['first_name'] = user.first_name
-        # Add other custom claims if needed
         return token
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,7 +27,6 @@ class DOCUserSerializer(serializers.ModelSerializer):
         exclude = ('password', 'id' ,'is_staff','is_superuser','user_type','email') 
 
 
-# class Accountserializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -83,13 +80,11 @@ class AdminDocUpdateSerializer(serializers.ModelSerializer):
         fields='__all__' 
         
     def update(self, instance, validated_data):
-        print("validated_data:",validated_data)
-        user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
+        user_data = validated_data.pop('user', {}) 
         user_serializer = DOCUserSerializer(instance.user, data=user_data, partial=True)
         if user_serializer.is_valid():
             user_serializer.save()
         else:
-            print("heloooo abhijithhhhhh")
             print(user_serializer.errors)
         return super().update(instance, validated_data)
 
@@ -101,24 +96,7 @@ class VerificationSerializer(serializers.ModelSerializer):
         fields = '__all__' 
     
 
-# class AdminPatientUpdateSerializer(serializers.ModelSerializer):
-#     # user=DOCUserSerializer()
-#     class Meta:
-#         model = User
-#         fields='__all__'
 
-#     # def update(self, instance, validated_data):
-#     #     user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
-#     #     user_serializer = UserSerializer(instance.User, data=user_data, partial=True)
-#     #     if user_serializer.is_valid():
-#     #         user_serializer.save()
-#     #     return super().update(instance, validated_data)
-
-#     def update(self, instance, validated_data):
-#         for attr, value in validated_data.items():
-#             setattr(instance, attr, value)
-#         instance.save()
-#         return instance
     
 class AdminPatientUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -142,7 +120,6 @@ class AdminPatientUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        print("Updating the following fields:", validated_data)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -178,7 +155,7 @@ class adminDocVerificationSerializer(serializers.ModelSerializer):
         fields='__all__'
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {}) # this is used to pop out the user object and if it is not existing then we will assign a {} to it as default
+        user_data = validated_data.pop('user', {}) 
         user_serializer = UserSerializer(instance.user, data=user_data, partial=True)
         if user_serializer.is_valid():
             user_serializer.save()

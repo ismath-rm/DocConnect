@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import useState from "react";
 import { UserImageAccess } from "../../Api/Api";
 import ImageModal from './ImageModal';
 
@@ -29,7 +29,7 @@ const VerificationDownload = ({ userId }) => {
     setSelectedImage(null);
   };
 
-//   console.log("rtfyvgbuhinjomcryvtbuinocvtybuin",verificationData)
+
   return (
     <div>
       {isfetch && (

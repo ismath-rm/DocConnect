@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { UserAPIwithAcess, UserImageAccess } from "../../../Api/Api";
@@ -33,7 +33,7 @@ function EditDoctor({ doctorId, setIsDataFetched, setEditModalVisible }) {
     username: "text",
     first_name: "text",
     last_name: "text",
-    gender: "text", // Change to text to make it read-only
+    gender: "text", 
     phone_number: "text",
     date_of_birth: "date",
     approval_status: "text",
@@ -85,36 +85,33 @@ function EditDoctor({ doctorId, setIsDataFetched, setEditModalVisible }) {
   };
 
   const handleSubmit = (e) => {
-    console.log('hey this ireach here yoo');
     console.log(e)
     e.preventDefault();
 
-    // Create a FormData object
+    
     const formData = new FormData();
 
-    // Append editable user data to the form data
+    
     const editableFields = ["approval_status", "is_id_verified", "is_email_verified", "is_active"];
     editableFields.forEach((key) => {
       formData.append(key, user[key]);
     });
-    console.log(formData);
+    
 
-    // Debugging: Check the formData contents
+    
     for (let pair of formData.entries()) {
       console.log(pair[0] + ": " + pair[1]);
     }
 
-    // Make the API request
+
     UserImageAccess
       .patch(`auth/admin/doc/update/${doctorId}/`, formData, config)
       .then((res) => {
-        console.log("Data updated successfully:", res.data);
         toast.success("Data updated successfully");
         setEditModalVisible(false);
         setIsDataFetched(false); 
       })
       .catch((err) => {
-        console.error("Error updating data:", err);
         toast.error("Error updating data");
       });
   };
@@ -126,7 +123,6 @@ function EditDoctor({ doctorId, setIsDataFetched, setEditModalVisible }) {
         setUser({ ...res.data.user });
         setSpecializations(res.data.specializations || "");
         setDocDetail(res.data);
-        console.log(res.data, "reached to the editing component");
         setIsDataFetched(true);
       })
       .catch((err) => {
@@ -144,7 +140,7 @@ function EditDoctor({ doctorId, setIsDataFetched, setEditModalVisible }) {
           </h3>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-6 gap-6">
-              {/* Display Specializations */}
+              
               <div className="col-span-6 sm:col-span-3">
                 <label
                   htmlFor="specializations"

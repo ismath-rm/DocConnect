@@ -14,7 +14,6 @@ export default function AccountPopover() {
   const logout = () => {
     Cookies.remove('access');
     Cookies.remove('refresh');
-    console.log("rockkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
 
     navigate('/admincontrol/login')
 
