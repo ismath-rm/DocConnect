@@ -8,51 +8,51 @@ Built with a scalable and modern tech stack — **React + Django + Redis + WebSo
 
 ---
 
-# **⭐ Features**
+# ⭐ Features
 
-**- 👥 Role-Based Access**
-   1. **Patient Dashboard**
-      - Book appointments
-      - Real-time chat
-      - Video consultations
-      - Manage bookings & profile
+- 👥 **Role-Based Access**
+  1. **Patient Dashboard**
+     - Book appointments
+     - Real-time chat
+     - Video consultations
+     - Manage bookings & profile
 
-   2. **Doctor Dashboard**
-      - Manage availability & schedules
-      - Accept or reject appointments
-      - Chat & video call with patients
+  2. **Doctor Dashboard**
+     - Manage availability & schedules
+     - Accept or reject appointments
+     - Chat & video call with patients
 
-   3. **Admin Panel**
-      - Approve doctor registrations
-      - Manage users, doctors, notifications
-      - Oversee platform operations
+  3. **Admin Panel**
+     - Approve doctor registrations
+     - Manage users, doctors, notifications
+     - Oversee platform operations
 
-**- 💬 Real-Time Communication**
-   - WebSocket-powered instant messaging
-   - Live chat between patients and doctors
-   - Redis as channel layer backend
-   - Message timestamps & typing indicators 
+- 💬 **Real-Time Communication**
+  - WebSocket-powered instant messaging
+  - Live chat between patients and doctors
+  - Redis as channel layer backend
+  - Message timestamps & typing indicators 
 
-**- 🎥 Video Consultation**
-   - Powered by ZegoCloud SDK
-   - Secure 1-on-1 video session
-   - Camera/Mic toggle & disconnect
+- 🎥 **Video Consultation**
+  - Powered by ZegoCloud SDK
+  - Secure 1-on-1 video session
+  - Camera/Mic toggle & disconnect
 
-**- 📅 Advanced Appointment Booking**
-   - View doctor availability
-   - Book, cancel, or reschedule
-   - Doctors set time slots & availability
-   - Appointment verification
+- 📅 **Advanced Appointment Booking**
+  - View doctor availability
+  - Book, cancel, or reschedule
+  - Doctors set time slots & availability
+  - Appointment verification
 
-**- 💳 Secure Payments**
-   - Razorpay Integration
-   - Verified payment before consultation
-   - Backend signature verification 
+- 💳 **Secure Payments**
+  - Razorpay Integration
+  - Verified payment before consultation
+  - Backend signature verification 
 
-**- 🔔 Notifications System**
-   - Appointment updates
-   - Doctor approval status
-   - Chat & consultation reminders
+- 🔔 **Notifications System**
+  - Appointment updates
+  - Doctor approval status
+  - Chat & consultation reminders
 
 ---
 
