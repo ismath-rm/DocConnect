@@ -10,7 +10,7 @@ Built with a scalable and modern tech stack — **React + Django + Redis + WebSo
 
 # **⭐ Features**
 
-**. 👥 Role-Based Access**
+**- 👥 Role-Based Access**
    1. **Patient Dashboard**
       - Book appointments
       - Real-time chat
@@ -27,29 +27,29 @@ Built with a scalable and modern tech stack — **React + Django + Redis + WebSo
       - Manage users, doctors, notifications
       - Oversee platform operations
 
-**. 💬 Real-Time Communication**
+**- 💬 Real-Time Communication**
    - WebSocket-powered instant messaging
    - Live chat between patients and doctors
    - Redis as channel layer backend
    - Message timestamps & typing indicators 
 
-**. 🎥 Video Consultation**
+**- 🎥 Video Consultation**
    - Powered by ZegoCloud SDK
    - Secure 1-on-1 video session
    - Camera/Mic toggle & disconnect
 
-**. 📅 Advanced Appointment Booking**
+**- 📅 Advanced Appointment Booking**
    - View doctor availability
    - Book, cancel, or reschedule
    - Doctors set time slots & availability
    - Appointment verification
 
-**. 💳 Secure Payments**
+**- 💳 Secure Payments**
    - Razorpay Integration
    - Verified payment before consultation
    - Backend signature verification 
 
-**. 🔔 Notifications System**
+**- 🔔 Notifications System**
    - Appointment updates
    - Doctor approval status
    - Chat & consultation reminders
