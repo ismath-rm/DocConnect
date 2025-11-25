@@ -50,22 +50,21 @@ Built with a scalable and modern tech stack — **React + Django + Redis + WebSo
   - Backend signature verification 
 
 - 🔔 **Notifications System**
-  - Appointment updates
-  - Doctor approval status
-  - Chat & consultation reminders
+  - Appointment updates (Doctor side)
+  - Appointment cancellation notifications (Patient side)
+  - Chat message alerts
 
 ---
 
 # **🛠 Tech Stack**
 
-   . **Frontend**: React (Vite), Tailwind CSS, Axios, React Router
-   . **Backend**: Django, Django REST Framework, Django Channels
-   . **Database**:	PostgreSQL
-   . **Real-Time**: Redis
-   . **Video Calls**:	ZegoCloud
-   . **Payments**:	Razorpay
-   . **Auth**: JWT Authentication
-
+   - **Frontend**: React (Vite), Tailwind CSS, Axios, React Router  
+   - **Backend**: Django, Django REST Framework, Django Channels  
+   - **Database**: PostgreSQL  
+   - **Real-Time**: Redis  
+   - **Video Calls**: ZegoCloud  
+   - **Payments**: Razorpay  
+   - **Auth**: JWT Authentication
 ---
 
 # **🚀 Getting Started**
